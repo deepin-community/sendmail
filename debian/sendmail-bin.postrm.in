@@ -1,0 +1,48 @@
+#!/bin/sh
+set -e;
+
+PACKAGE=sendmail-bin;
+
+if [ "$1" = "remove" ]; then
+
+	if dpkg-statoverride --list @libexecdir@/sendmail >/dev/null ; then
+		dpkg-statoverride --remove @libexecdir@/sendmail
+	fi
+	if dpkg-statoverride --list @libexecdir@/mailstats >/dev/null ; then
+		dpkg-statoverride --remove @libexecdir@/mailstats
+	fi
+
+fi
+
+if [ "$1" = "purge" ]; then
+
+		# If postrm is called *AND* there are no files, exit quickly
+		# (This is a *GROSS* hack... beter use the test below)
+		#if [ ! -s `echo "$0" | sed -e 's/postrm$/list/'` ]; then
+		#		echo "Purging replaced package $PACKAGE, nothing to do...";
+		#		exit 0;
+		#		fi;
+
+		# We're *really* purging; neither sendmail nor sendmail-tls
+		# is currently installed
+		if [ -f @libexecdir@/sendmail ]; then
+			echo "Purging replaced package $PACKAGE, nothing to do...";
+			exit 0;
+			fi;
+
+		# Currently, dh_installdebconf doesn't do db_stop... ensure it is done!
+		if [ -e /usr/share/debconf/confmodule ]; then
+			# Source debconf library.
+			. /usr/share/debconf/confmodule;
+			# Make sure we're done
+			#db_stop;
+			# Remove my changes to the db.
+			db_purge;
+			fi;
+
+		rm -f @sysconfdir@/mail/sendmail.cf.old
+		rm -f @sysconfdir@/mail/submit.cf.old
+
+fi
+
+#DEBHELPER#

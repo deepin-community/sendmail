@@ -1,0 +1,92 @@
+Description: Fix order of fcntl and dotlock in mail.local
+Author: Tim Marston <tim@ed.am>
+Bug-Debian: http://bugs.debian.org/684645
+--- a/mail.local/mail.local.c
++++ b/mail.local/mail.local.c
+@@ -1105,26 +1105,6 @@ deliver(fd, name)
+ 	*/
+ 
+ tryagain:
+-#ifdef MAILLOCK
+-	p = name;
+-#else
+-	p = path;
+-#endif
+-	if ((off = lockmbox(p)) != 0)
+-	{
+-		if (off == EX_TEMPFAIL || e_to_sys(off) == EX_TEMPFAIL)
+-		{
+-			ExitVal = EX_TEMPFAIL;
+-			errcode = "451 4.3.0";
+-		}
+-		else
+-			errcode = "551 5.3.0";
+-
+-		mailerr(errcode, "lockmailbox %s failed; error code %d %s",
+-			p, off, errno > 0 ? sm_errstring(errno) : "");
+-		return;
+-	}
+-
+ 	if (lstat(path, &sb) < 0)
+ 	{
+ 		int save_errno;
+@@ -1279,6 +1259,26 @@ tryagain:
+ 		goto err1;
+ 	}
+ 
++#ifdef MAILLOCK
++	p = name;
++#else /* MAILLOCK */
++	p = path;
++#endif /* MAILLOCK */
++	if ((off = lockmbox(p)) != 0)
++	{
++		if (off == EX_TEMPFAIL || e_to_sys(off) == EX_TEMPFAIL)
++		{
++			ExitVal = EX_TEMPFAIL;
++			errcode = "451 4.3.0";
++		}
++		else
++			errcode = "551 5.3.0";
++
++		mailerr(errcode, "lockmailbox %s failed; error code %d %s",
++			p, off, errno > 0 ? sm_errstring(errno) : "");
++		goto err1;
++	}
++
+ 	/* Get the starting offset of the new message */
+ 	curoff = lseek(mbfd, (off_t) 0, SEEK_END);
+ 	(void) sm_snprintf(biffmsg, sizeof(biffmsg), "%s@%lld\n",
+@@ -1352,14 +1352,14 @@ err3:
+ #endif
+ 		if (mbfd >= 0)
+ 			(void) ftruncate(mbfd, curoff);
+-err1:		if (mbfd >= 0)
++err1:		unlockmbox();
++		if (mbfd >= 0)
+ 			(void) close(mbfd);
+ err0:
+ #if MAIL_LOCAL_TEST
+ 		if (HomeMailFile == NULL || user.mbdb_uid != getuid())
+ #endif
+ 		(void) setreuid(0, 0);
+-		unlockmbox();
+ 		return;
+ 	}
+ 
+@@ -1377,6 +1377,7 @@ err0:
+ 	else
+ 		cursize = sb.st_size;
+ 
++	unlockmbox();
+ 
+ 	/* Close and check -- NFS doesn't write until the close. */
+ 	if (close(mbfd))
+@@ -1430,7 +1431,6 @@ err0:
+ #ifdef DEBUG
+ 	fprintf(stderr, "reset euid = %d\n", (int) geteuid());
+ #endif
+-	unlockmbox();
+ 	if (LMTPMode)
+ 		printf("250 2.1.5 %s Ok\r\n", name);
+ }

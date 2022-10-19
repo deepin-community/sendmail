@@ -1,0 +1,13 @@
+Description: Change sendmail call -obq to -obi
+
+--- a/rmail/rmail.c
++++ b/rmail/rmail.c
+@@ -276,7 +276,7 @@ main(argc, argv)
+ 	args[i++] = _PATH_SENDMAIL;	/* Build sendmail's argument list. */
+ 	args[i++] = "-G";		/* relay submission */
+ 	args[i++] = "-oee";		/* No errors, just status. */
+-	args[i++] = "-odq";		/* Queue it, don't try to deliver. */
++	args[i++] = "-odi";             /* deliver in the foreground. */
+ 	args[i++] = "-oi";		/* Ignore '.' on a line by itself. */
+ 
+ 	/* set from system and protocol used */

@@ -1,0 +1,142 @@
+Author: Andreas Beckmann <anbe@debian.org>
+Description: fix hyphen-used-as-minus-sign
+
+--- a/contrib/qtool.8
++++ b/contrib/qtool.8
+@@ -37,11 +37,11 @@ will move any queue files as specified b
+ \fItarget_directory\fP. \fISource\fP can be either an individual
+ queue control file, a queue file id, or a queue directory.
+ .PP
+-If the -d option is specified, qtool will delete the messages specified by
++If the \-d option is specified, qtool will delete the messages specified by
+ source instead of moving them.
+ .PP
+-If the -b option is specified, the selected messages will be bounced by
+-running sendmail with the -OTimeout.queuereturn=now option.
++If the \-b option is specified, the selected messages will be bounced by
++running sendmail with the \-OTimeout.queuereturn=now option.
+ .SS Options
+ .TP
+ \fB\-b\fP
+@@ -210,7 +210,7 @@ Moves the message with id d6CLQh100847 i
+ \fBqtool.pl q2 q1/qfd6CLQh100847\fP
+ Moves the message with id d6CLQh100847 in queue q1 to queue q2.
+ .TP
+-\fBqtool.pl -e '$msg{num_delivery_attempts} == 3' /q2 /q1\fP
++\fBqtool.pl \-e '$msg{num_delivery_attempts} == 3' /q2 /q1\fP
+ Moves all of the queue files that have had three attempted deliveries from
+ queue q1 to queue q2.
+ .SH BUGS
+--- a/mail.local/mail.local.8
++++ b/mail.local/mail.local.8
+@@ -67,7 +67,7 @@ of a system mail spool directory.
+ .PP
+ The next options are only available if
+ .B mail.local
+-has been compiled with -DHASHSPOOL.
++has been compiled with \-DHASHSPOOL.
+ .TP
+ .BI \-H " hashtypehashdepth"
+ Select hashed mail directories.
+@@ -75,7 +75,7 @@ Valid hash types are
+ .B u
+ for user name and
+ .B m
+-for MD5 (requires compilation with -DHASHSPOOLMD5).
++for MD5 (requires compilation with \-DHASHSPOOLMD5).
+ Example:
+ .BI \-H " u2"
+ selects user name hashing with a hash depth of 2.
+--- a/sendmail/mailq.1
++++ b/sendmail/mailq.1
+@@ -45,7 +45,7 @@ The following lines show message recipie
+ one per line.
+ .PP
+ .B Mailq
+-is identical to ``sendmail -bp''.
++is identical to ``sendmail \-bp''.
+ .PP
+ The relevant options are as follows:
+ .TP
+--- a/sendmail/newaliases.1
++++ b/sendmail/newaliases.1
+@@ -24,7 +24,7 @@ rebuilds the random access data base for
+ in order for the change to take effect.
+ .PP
+ .B Newaliases
+-is identical to ``sendmail -bi''.
++is identical to ``sendmail \-bi''.
+ .PP
+ The
+ .B newaliases
+--- a/sendmail/sendmail.8
++++ b/sendmail/sendmail.8
+@@ -621,7 +621,7 @@ It may be necessary to quote the name to
+ from suppressing the blanks from between arguments.
+ For example, a common alias is:
+ .IP
+-msgs: "|/usr/bin/msgs -s"
++msgs: "|/usr/bin/msgs \-s"
+ .PP
+ Aliases may also have the syntax
+ .RI ``:include: filename ''
+--- a/vacation/vacation.1
++++ b/vacation/vacation.1
+@@ -57,7 +57,7 @@ file.  For example, your
+ .I .forward
+ file might have:
+ .IP
+-\eeric, "|/usr/bin/vacation -a allman eric"
++\eeric, "|/usr/bin/vacation \-a allman eric"
+ .PP
+ which would send messages to you (assuming your login name was eric) and
+ reply to any messages for
+@@ -126,7 +126,7 @@ Respond to the message regardless of whe
+ a recipient for the message.
+ Do not use this flag unless you are sure of the consequences.
+ For example, this will cause
+-.i vacation
++.I vacation
+ to reply to mailing list messages which may result in removing
+ you from the list.
+ .TP
+@@ -179,7 +179,7 @@ vacation program.
+ Do not attempt to lookup
+ .I login
+ in the password file.
+-The -f and -m options must be used to specify the database and message file
++The \-f and \-m options must be used to specify the database and message file
+ since there is no home directory for the default settings for these options.
+ .TP
+ .B \-x
+@@ -263,7 +263,7 @@ Precedence: bulk
+ 
+ I am on vacation until July 22.  If you have something urgent,
+ please contact Keith Bostic <bostic@CS.Berkeley.EDU>.
+---eric
++\-\-eric
+ .fi
+ .SH FILES
+ .TP 1.8i
+--- a/contrib/etrn.0
++++ b/contrib/etrn.0
+@@ -5,7 +5,7 @@ NAME
+      etrn - start mail queue run
+ 
+ SYNOPSIS
+-     etrn [-v] server-host [client-hosts]
++     etrn [\-v] server-host [client-hosts]
+ 
+ DESCRIPTION
+      SMTP's  ETRN  command  allows  an  SMTP client and server to
+@@ -26,8 +26,8 @@ DESCRIPTION
+ OPTIONS
+      The following option is supported:
+ 
+-     -v    The normal mode of operation for etrn is to do all  of
+-	   its  work  silently.   The -v option makes it verbose,
++     \-v    The normal mode of operation for etrn is to do all  of
++	   its  work  silently.   The \-v option makes it verbose,
+ 	   which causes etrn to display  its  conversations  with
+ 	   the remote SMTP server.
+ 

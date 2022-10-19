@@ -1,0 +1,17 @@
+--- a/cf/mailer/cyrus.m4
++++ b/cf/mailer/cyrus.m4
+@@ -36,11 +36,11 @@ PUSHDIVERT(-1)
+ #
+ 
+ _DEFIFNOT(`CYRUS_MAILER_FLAGS', `Ah5@/:|')
+-ifdef(`CYRUS_MAILER_PATH',, `define(`CYRUS_MAILER_PATH', /usr/cyrus/bin/deliver)')
+-ifdef(`CYRUS_MAILER_ARGS',, `define(`CYRUS_MAILER_ARGS', `deliver -e -m $h -- $u')')
++ifdef(`CYRUS_MAILER_PATH',, `define(`CYRUS_MAILER_PATH', /usr/sbin/cyrdeliver)')
++ifdef(`CYRUS_MAILER_ARGS',, `define(`CYRUS_MAILER_ARGS', `cyrdeliver -e -m $h -- $u')')
+ ifdef(`CYRUS_MAILER_USER',, `define(`CYRUS_MAILER_USER', `cyrus:mail')')
+ _DEFIFNOT(`CYRUS_BB_MAILER_FLAGS', `u')
+-ifdef(`CYRUS_BB_MAILER_ARGS',, `define(`CYRUS_BB_MAILER_ARGS', `deliver -e -m $u')')
++ifdef(`CYRUS_BB_MAILER_ARGS',, `define(`CYRUS_BB_MAILER_ARGS', `cyrdeliver -e -m $u')')
+ define(`_CYRUS_QGRP', `ifelse(defn(`CYRUS_MAILER_QGRP'),`',`', ` Q=CYRUS_MAILER_QGRP,')')dnl
+ 
+ POPDIVERT

@@ -1,0 +1,16 @@
+Description: Log mi_stop flag at debug level when closing socket
+Author: David Bürgin <dbuergin@gluet.ch>
+
+--- a/libmilter/listener.c
++++ b/libmilter/listener.c
+@@ -1000,8 +1000,8 @@ mi_listener(conn, dbg, smfi, timeout, ba
+ 		mi_stop_milters(MILTER_ABRT);
+ 	else
+ 	{
+-		if (mistop != MILTER_CONT)
+-			smi_log(SMI_LOG_INFO, "%s=%s",
++		if (mistop != MILTER_CONT && dbg > 0)
++			smi_log(SMI_LOG_DEBUG, "%s=%s",
+ 				smfi->xxfi_name,
+ 				MILTER_STOP == mistop ? "terminating"
+ 							: "aborting");

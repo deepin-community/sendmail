@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=${prefix}
+libdir=@libdir@
+includedir=${prefix}/include/libmilter
+
+Name: milter
+Description: Sendmail Mail Filter API (Milter)
+Version: @sm_version@
+Libs: -L${libdir} -lmilter
+Cflags: -I${includedir}

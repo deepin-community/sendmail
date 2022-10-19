@@ -1,0 +1,24 @@
+# custom call: /etc/init.d/sendmail clean
+maintainer-script-calls-init-script-directly [prerm:34]
+
+# default install uses daemon mode (no need for inetd),
+# all update-inetd calls are guarded with existence checks
+maintainer-script-needs-depends-on-update-inetd
+
+# this is a preformatted catman page :-(
+bad-whatis-entry usr/share/man/man8/etrn.8.gz
+
+# this is a perl/troff bilingual script, false positives are in the perl part
+groff-message usr/share/man/man1/expn.1.gz *: warning: macro '\"';' not defined
+
+# part of the sendmail-mta alternative
+spare-manual-page usr/share/man/man8/runq.sendmail.8.gz
+
+# set in line 17
+bash-term-in-posix-shell '$HOSTNAME' [usr/share/sendmail/update_auth:23]
+
+# in printed informative here-documents
+bash-term-in-posix-shell '.{o,a}' [usr/share/sendmail/update_ldap:123]
+bash-term-in-posix-shell '.{ps,txt}' [usr/share/sendmail/update_notices:140]
+bash-term-in-posix-shell 'let' [usr/share/sendmail/update_auth:246]
+bash-term-in-posix-shell 'let' [usr/share/sendmail/update_notices:103]

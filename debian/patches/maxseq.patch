@@ -1,0 +1,11 @@
+--- a/sendmail/conf.h
++++ b/sendmail/conf.h
+@@ -80,7 +80,7 @@ struct rusage;	/* forward declaration to
+ #define MAXKEY		1024	/* max size of a database key */
+ #define MEMCHUNKSIZE	1024	/* chunk size for memory allocation */
+ #define MAXUSERENVIRON	100	/* max envars saved, must be >= 3 */
+-#define MAXMAPSTACK	12	/* max # of stacked or sequenced maps */
++#define MAXMAPSTACK	128	/* max # of stacked or sequenced maps */
+ #if MILTER
+ # define MAXFILTERS	25	/* max # of milter filters */
+ # define MAXFILTERMACROS 50	/* max # of macros per milter cmd */

@@ -1,0 +1,16 @@
+Description: hard-coded "10" is not enough to listen on both IPv4 and IPv6
+ with a minimal configuration of MTA, MSA, and MSASSL on both localhost
+ and primary interface (12 daemons). Raise limit to 64.
+Author: Kees Cook <kees@debian.org>
+
+--- a/sendmail/conf.h
++++ b/sendmail/conf.h
+@@ -114,7 +114,7 @@ struct rusage;	/* forward declaration to
+ # define MAXHDRSLEN	(32 * 1024)	/* max size of message headers */
+ #endif
+ #ifndef MAXDAEMONS
+-# define MAXDAEMONS	10		/* max number of ports to listen to */
++# define MAXDAEMONS	64		/* max number of ports to listen to */
+ 	/* XREF: conf.c: MAXDAEMONS != 10 */
+ #endif
+ #ifndef MAXINTERFACES

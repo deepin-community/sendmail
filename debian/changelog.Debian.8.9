@@ -1,0 +1,1043 @@
+sendmail (8.9.3-26.1) oldstable-security; urgency=high
+
+  * Non-maintainer upload by the Security Team
+  * Create temporary files securely
+    Report and patches from Paul Szabo <psz@maths.usyd.edu.au>
+    [debian/checksendmail/checksendmail.perl,
+     contrib/doublebounce.pl,
+     contrib/expn.pl]
+    (Closes: #173243)
+
+ -- Matt Zimmerman <mdz@debian.org>  Thu, 24 Apr 2003 12:57:36 -0400
+
+sendmail (8.9.3-26) oldstable-security; urgency=high
+
+   * Buffer overflow in parsing routines             closes: #186768
+   Claus Assmann <ca+announce@sendmail.org> writes:
+   > We apologize for releasing this information today (2003-03-29) but
+   > we were forced to do so by an e-mail on a public mailing list (that
+   > has been sent by an irresponsible individual) which contains
+   > information about the security flaw.
+   [...]
+   >       SECURITY: Fix a buffer overflow in address parsing due to
+   >               a char to int conversion problem which is potentially
+   >               remotely exploitable.  Problem found by Michal Zalewski.
+   >               Note: an MTA that is not patched might be vulnerable to
+   >               data that it receives from untrusted sources, which
+   >               includes DNS.
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Sun, 30 Mar 2003 13:10:00 -0500
+
+sendmail (8.9.3-25) oldstable-security; urgency=high
+
+  * -O0 (to get past ARM)
+  * Remote exploit (CERT Advisory CA-2003-07)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 03 Mar 2003 19:50:00 -0500
+
+sendmail (8.9.3-24) oldstable-security; urgency=high
+
+  * Remote exploit (CERT Advisory CA-2003-07)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 03 Mar 2003 18:00:00 -0500
+
+sendmail (8.9.3-23) frozen; urgency=low
+
+  * Release manager - All these bugs are capable of stopping an upgrade
+    of slink->potato *DEAD* This really needs to be installed !
+  * depend upon a recent dpkg to get a fixed start-stop-daemon
+  * support nis maps in Makefile, updatedb (closes: #65322)
+    . debian/local/parsemc, debian/local/updatedb
+  * hamm -> potato upgrade error (closes: #64815)
+    . debian/sendmail.postinst
+  * Quiet /etc/init.d/sendmail stop (closes: #64631,#63610,#64686)
+    and also drop redundant --stop  (closes: #64345)
+    . debian/sendmail.init.d
+  * Debian-specific file to summarize Debian vs Sendmail differences
+    . debian/Debian-specific
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 25 May 2000 17:00:00 -0500
+
+sendmail (8.9.3-22) frozen; urgency=high
+
+  * Fix unsafe fgets in mail.local, based on the upstream patch for 8.10.1
+    Non-maintainer upload by security team (thanks Wichert).
+  * sendmail.cf/mailer/cyrus.m4 incompatible with Debian package
+    Thanks Manoj Srivastava (closes: bug #63441)
+  * revert fix for 55485 because it doesn't really solve the problem:
+    the problem specifically noted in the 8.10 cf/README:
+
+    NOTICE: It is possible to relay mail through a system which the anti-relay
+    rules do not prevent: the case of a system that does use FEATURE(`nouucp',
+    `nospecial') (system A) and relays local messages to a mail hub (e.g., via
+    LOCAL_RELAY or LUSER_RELAY) (system B).  If system B doesn't use
+    FEATURE(`nouucp') at all, addresses of the form
+    <example.net!user@local.host> would be relayed to <user@example.net>.
+    System A doesn't recognize `!' as an address separator and therefore
+    forwards it to the mail hub which in turns relays it because it came from
+    a trusted local host.  So if a mailserver allows UUCP (bang-format)
+    addresses, all systems from which it allows relaying should do the same
+    or reject those addresses.
+
+    The bottom line here is basically that a certain *combination* of nouucp
+    and non-nouucp on different hosts can open up for multi-level relaying,
+    which of course makes it difficult for a pre-packaged version to do "the
+    right thing", given that it can't make assumptions about what type of
+    systems it gets installed on. Best is probably to not have it use
+    FEATURE(nouucp) in 8.9.3, as this is (of course) the default.
+    --Per Hedeland
+
+    I've taken the approach of properly warning the user in sendmailconfig
+    . debian/local/sendmailconfig (closes: bug#55485)
+
+  * Remove --exec parameter from start-stop-daemon --stop as it can prevent
+    orderly shutdown of sendmail during postinst (use just --PIDFILE)
+    . debian/sendmail.init.d (closes: #60282)
+  * Several older bugs got marked as NMU fixed...
+   . closes: #24608,#24612,#31138,#32409,#34285,#34405,#34715
+   . closes: #34722,#34789,#35548,#36067,#38783,#39021,#41325
+   . closes: #42041,#42265,#43241,#44035,#44797
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 08 May 2000 12:00:00 -0500
+
+sendmail (8.9.3-21) frozen; urgency=low
+
+  * (RC) _NO_UUCP_ test was backwards in proto.m4, causing relay hole
+    for sites that used FEATURE(nouucp)
+    . debian/patches/patch.nouucp (closes: #55485)
+  * (RC) Sigh, Correct FEATURE(rbl), dns site renamed  (closes: #55301)
+    . debian/patches/mrbl.p3
+  * complete rename of /etc/mail/sendmail.ct to /etc/mail/trusted-users
+    . debian/cf/ostype/debian.m4  (closes: #54552)
+    . debian/cf/cf/debproto.mc
+  * Don't assume make is installed and don't use it in postrm (closes: #57051)
+    . also noted as (closes: #59258)
+  * Return-Path 53173 duplicate (closes: #58003)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 09 Mar 2000 14:00:00 -0500
+
+sendmail (8.9.3-20) unstable; urgency=low
+
+  * Properly handle sendmail.cf being a soft symbolic link (closes: #51782)
+    . debian/sendmail.cron.daily
+  * Remove start-as so /etc/init.d/sendmail actually stops ;-0
+    . debian/sendmail.init.d
+  * add Return-Path: on delivery (closes: #53173)
+    . debian/cf/ostype/debian.m4
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Fri, 07 Jan 2000 15:05:00 -0500
+
+sendmail (8.9.3-19) unstable; urgency=low
+
+  * don't wait for subordinate processess to finish... they may not
+    end for quite a while -- caused 2min delays during ip-up
+    . debian/sendmail.init.d
+  * don't stop sendmail in prerm unless this is a removal
+    . debian/sendmail.prerm
+  * patched against local user running sendmail -bi, DoS (closes: #51126)
+  * provide default /etc/mail/aliases if none found (closes: #51609)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Wed, 1 Dec 1999 15:05:00 -0500
+
+sendmail (8.9.3-18) unstable; urgency=low
+
+  * no longer stop sendmail in preinst, wait until postinst (closes: #48136)
+    . debian/sendmail.{pre,post}inst
+  * uucp *does* put rmail in /usr/sbin... (closes: #48496)
+  * improve updatedb error message on missing file (closes: #49924)
+    . debian/local/updatedb
+  * remove /usr/sbin/hoststat - newscache has it also (closes: #49875)
+    . debian/rules
+  * improve vnet/lotus notes support
+    . debian/cf/feature/vnet.m4
+  * cleanup dependancies - build and runtime
+    . debian/control
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Tue, 16 Nov 1999 14:05:00 -0500
+
+sendmail (8.9.3-17) unstable; urgency=low
+
+  * updatedb no longer prompts when an error is seen
+    . debian/local/updatedb
+  * add vacation to the default list of commands for smrsh
+    . debian/rules
+  * Conforms to Standards version 3.1.0:
+   . debian/control: Added build dependancies.
+   . debian/local/site.config.m4.in: Using `-O2 -g -Wall' for CFLAGS.
+  * close a window wherein sendmail.cf didn't exist (use cp instead of mv)
+   . debian/sendmail.postinst
+  * parsemc didn't handle `userdb.db` (closes: #49351)
+   . debian/local/parsemc
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 08 Nov 1999 15:05:00 -0500
+
+sendmail (8.9.3-16) unstable; urgency=low
+
+  * updatedb failed to create link for /etc/aliases (closes: #48535)
+    a mv command just ahead of it died first ;-{
+    . debian/local/updatedb
+  * permissions on files should be 06x4, not 06x0 (closes: #48509)
+    I these execs from my (tightly clamped) system
+    . debian/sendmail.postinst
+    . debian/local/parsemc
+    . debian/local/updatedb
+  * postinst failure if run whilst the network is down (closes: #48521)
+    Can't tell if messages from m4 are error, informational ;-{
+    . debian/sendmail.postinst
+  * move mailq back to /usr/bin
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 28 Oct 1999 12:00:00 -0500
+
+sendmail (8.9.3-15) unstable; urgency=low
+
+  * source builds still fubar... chmod a+x debian/configure (closes: #48469)
+    . debian/rules
+  * /etc/ppp/ip-{up,down}.d/sendmail now both use /etc/init.d/sendmail reload
+    instead of restart/stop. (closes: #48374)
+    . debian/local/ip-{up,down}.d
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Wed, 27 Oct 1999 11:00:00 -0500
+
+sendmail (8.9.3-14) unstable; urgency=low
+
+  * use autoconfig for NISPLUS so sendmail builds ok on m68k (closes: #48289)
+    . debian/local/site.config.m4.in
+    . debian/local/configure.in
+    . debian/rules
+  * problem with smarthost and sendmailconfig (email report)
+    . debian/local/sendmailconfig
+  * don't keep persistant host status while the network is down
+    . debian/local/ip-down.d
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 25 Oct 1999 15:00:00 -0500
+
+sendmail (8.9.3-13) unstable; urgency=low
+
+  * remove basename from parsemc for `force` option (closes: #48106)
+    . debian/local/parsemc
+  * /etc/mail/Makefile now handles optional databases (closes: #48107)
+    . debian/local/parsemc
+  * close a previous fixed problem (closes: #47715)
+    . fixed -9, was hoping to get more info on possible parse error ...
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Sun, 24 Oct 1999 16:00:00 -0500
+
+sendmail (8.9.3-12) unstable; urgency=low
+
+  * remove FEATURE(access_db) from debian.m4 (closes: #47905)
+    . debian/cf/ostype/debian.m4
+  * redo sensible-mda.8 (closes: #21768)
+    . debian/local/sensible-mda.8
+  * warn users, who skip sendmailconfig, that they may have problems
+    if any files have moved (ie smrsh) (closes: #47936)
+    . debian/sendmail.postinst
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 21 Oct 1999 10:30:00 -0500
+
+sendmail (8.9.3-11) unstable; urgency=low
+
+  * updatedb dies, preventing configuration (closes: #47827, #47838)
+    . debian/local/updatedb
+  * a few more updatedb problems (closes: #47887)
+    . bad redirection (sigh)
+    . make /etc/alias link relative
+      - debian/local/updatedb
+  * more 8.10 preparedness
+    . /etc/mail/sendmail.ct -> /etc/mail/trusted-users
+      - debian/local/updatedb
+      - debian/local/parsemc
+      - debian/local/sendmailconfig
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Wed, 20 Oct 1999 10:30:00 -0500
+sendmail (8.9.3-10) unstable; urgency=low
+
+  * switch sense of optional database tests added in -9
+   . debian/local/updatedb
+  * to mimize load (via #children), change rmail to use -odi
+   . debian/patches/patch.rmail
+  * Don't replace Makefile if the current one isn't auto generated
+   . debian/local/parsemc (closes: #47733)
+  * prerm script fails if sendmail isn't running  (closes: #47547, #47758)
+   . debian/sendmail.{pre,post}{inst,rm}: verify -e
+   . debian/sendmail.init.d: add --oknodo to stop
+  * remove /usr/bin/rmail link (leaving in /usr/sbin in conformance w/policy)
+   . debian/rules
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Tue, 19 Oct 1999 10:00:00 -0500
+
+sendmail (8.9.3-9)  unstable; urgency=low
+
+  * updated wouldn't generate aliases.db if the file was empty, or only
+    contained comments (reported via email)
+    . debian/local/updatedb
+  * remove peers from provider.m4 in Makefile
+    .debian/local/parsemc
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 18 Oct 1999 15:35:00 -0500
+
+sendmail (8.9.3-8)  unstable; urgency=low
+
+  * sendmailconfig used old location for smrsh
+    . debian/local/sendmailconfig (closes: #47713)
+  * Makefile missed .m4 extension for provider
+    . debian/local/parsemc
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 18 Oct 1999 10:40:00 -0500
+
+sendmail (8.9.3-7)  unstable; urgency=low
+
+  * control and changelog now agree on who I am
+    . debian/control
+  * extraneous trailing blank kills awk (but not mawk) ;-{
+    . debian/local/parsemc (closes: #47539)
+  * improper variable reference in sendmailconfig
+    . debian/local/sendmailconfig (closes: #47526)
+  * switch order of arguments to procmail
+    . debian/local/sensible-mda (closes: #47534)
+  * add minimal help information to sensible-mda
+    . debian/local/sensible-mda (closes: #47532)
+  * parsemc doesn't work under ash, magic is now #!/bin/bash
+    . debian/local/parsemc (closes: #47575)
+  * bug list cleanup
+    . smrsh manpage fixed in 8.9.3-3 (closes: #40024)
+    . sendmail/nscd now coexists much better, fixed in 8.9.3-3 (closes: #40363)
+    . 8.9.3-3 should've fixed children segfaulting (closes: #45093)
+    . No answer to information requests (closes: #40922)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Sat, 16 Oct 1999 12:00:00 -0500
+
+sendmail (8.9.3-6)  unstable; urgency=low
+
+  * ************* IMPORTANT ********************
+    Please see /usr/share/doc/sendmail/changelog.Debian.gz for
+    the 8.9.3-4 changes !  That version had significant changes
+    and fixed the following 20 problems (but was only tested by a few):
+      closes: #43241,#39021,#31138,#42265,#44035,#38783,#36067,#34715
+      closes: #24608,#42041,#41325,#34789,#44797,#34722,#34285,#32409
+      closes: #24612,#29420,#35548,#34405
+  * Ok, back to our regulary scheduled programming
+
+  * add dependancies on sendmail.cf for dialup.m4 and provider.m4
+  * create /etc/mail/peers/provider (new conffile)
+  * prevent shell expansion in someplace in /etc/init.d/sendmail
+    This will allow the new queue checking code to work properly
+  * Note that the following are very interdependant:
+    . debian/local/parsemc
+    . debian/local/updatedb
+    . debian/cf/ostype/debian.m4
+  * cleanup and extend configuration
+    . debian/local/updatedb
+    . debian/local/parsemc
+  * Don't let /etc/ppp/ip-up.d/sendmail overwrite /etc/mail/provider.m4
+    when it is a link - for single provider cases.
+    . debian/local/ip-up.d
+  * User database is optional !
+    . debian/local/parsemc
+  * save /etc/mail/sendmail.{mc,cf} to /var/backups
+    . debian/sendmail.cron.daily
+    . debian/sendmail.postinst
+  * Postinst now asks before overwriting /etc/mail/sendmail.cf
+    . debian/sendmail.postinst
+  * /var/sendmail -> /var/lib/sendmail
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Fri, 15 Oct 1999 14:00:00 -0500
+
+sendmail (8.9.3-5)  stable; urgency=low
+  * "slink" (stable) version of "potato" (unstable) sendmail-8.9.3-6
+    Please see its changelog for further information
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Fri, 15 Oct 1999 14:00:00 -0500
+
+sendmail (8.9.3-4)  unstable; urgency=low
+
+  * The `back from the dead` release
+    Ok... Between glibc 2.1 breaking socksification and IBM having
+    severe problems with email... not to mention health & vacation
+    problems... I've procrastinated enough ;-{
+    Sending the currently complete items out to allow further testing.
+    The sendmailconfig rewrite has been held up pending some head bashing
+    (my own).
+  * Vastly superior postinst/sendmailconfig setup, still more to do
+    will move sendmailconfig to debconf ASAP.  But the current version:
+     . Automagically updates sendmail.cf and any related databases upon
+       each new release
+     . Creates /etc/mail/Makefile that can be used to updated sendmail.cf
+       and related databases anytime
+     . Creates/updated databases when sendmailconfig is run, and sendmail.mc
+       has changed. (closes: bug#43241)
+     . Moves/Renames databases according to FHS and Sendmail suggestions
+        . text mailertable -> hash mailertable (closes: bug#39021)
+  * Ship plain text faq (email request)
+  * Have rmail call sendmail with background delivery instead of queueing.
+    Local email will be delivered immediately, and sendmail automatically
+    queues everything else anyway (at least with the supersafe option which
+    debian provides by default).  (closes: bug#31138) - though he wanted
+    -odi, and I used -odb
+  * Update ip-{up,down}.d/sendmail sample to properly handle dialup hosts!
+    the domain name, and Cw are updated based upon the allocated IP.
+    The idea comes from, and (closes: bug#42265)
+  * /etc/init.d/sendmail now checks for -d /usr/share/sendmail
+    instead of /usr/doc/sendmail.  This'll prevent NFS and partial
+    migration problems (closes: bug#44035)
+  * Start on example files (mailertable, etc): please checkout
+    /usr/share/doc/sendmail/examples/db-examples and let me know
+    what you think -- please contribute other examples !
+  * Finally, lintian clean ;-}
+  * Standards 3.0.1, Debhelper v2 (with only a few kluges in debian/rules) ;-}
+    . debian/rules
+  * Don't start sendmail daemon if nullclient, or if smptd is installed
+    . debian/sendmail.init.d (partial fix for 35220) and request of smptd
+      maintainer
+  * add NoRecipienAction = add-to-undisclosed (suggested setting)
+    . debian/debian.m4
+  * Add mime header patches from c.m.s
+  * SPAM:
+     -- Add imrss, dssl FEATUREs (see www.imrss.org)
+        Done using new rbl support
+     -- Drop orca/orbs in favour of mrbl patch from C.A.
+        They still work this release, by internally using the new rbl support
+  * Make sure FEATURE(local_procmail) comes before MAILER(local)
+    This will keep accidents from happening where plussed mail
+    gets broken... Helps with 34722 (closes: bug#38783)
+  * Add FEATURE(dont_masquerade_local),
+    suggested by our fearless leader ;-} (closes: bug#36067)
+    . This will prevent local address from being rewritten during local
+      delivery.  This most likely also fixes 34715 (closes: bug#34715)
+  * Enable mail.local -- for its LMTP support, it may become the default
+    and then wouldn't require procmail | deliver ! ;-}
+    Will not work via sensible-mda, however ;-{
+    . use FEATURE(local_lmtp) to enable
+  * Enabled NISPLUS for glibc 2.1
+  * Finally support /etc/mail/service.switch (ie, /etc/nsswitch.conf)
+    This file was never really consulted, as the default name didn't
+    match what Debian uses.  We can't use the real one because sendmail
+    doesn't (for the nonce) support this format.
+    Also, corrected HACK(nodns) to use /etc/mail/service.switch-nodns
+    and to remove FEATURE(nodns). (closes: bug#24608)
+  * Start of LDAP support..
+    . support compiled into sendmail for OpenLDAP
+    . added FEATURE(ldap,``parms'')dnl
+    . minimal testing, will do more - feel free ;-}
+    . Will need to wait for next release ;-{
+  * Fix smrsh manpage: /usr/adm/sm.bin->/usr/lib/sm.bin (closes: bug#40024)
+  * Update to use glibc 2.1, and use its libdb (closes: bug#41325)
+    . Previous bugs reported due to libdb2 problems - (closes: bug#34789)
+    . also removes problem of specific libdb2 dependancy (closes: bug#44797)
+  * sensible-mda updates
+    . sensible-mda breaks plussed mail (user+arg@domain) (closes: bug#34722)
+        . debian/sensible-mda.c
+        . debian/cf/ostype/debian.m4
+  * debian cleanup
+    . perl5 | perl suggestion
+    . remove bashisms from {pre,post}{inst,rm}
+    . debian/rules
+        . basically a complete rewrite
+          . handle Debian patches during build and install
+          . remove bashisms
+    . debian/sendmail.conffiles
+        . remove /etc/aliases as a conffile (reported via IRC)
+    . debian/sendmail.postinst
+        . yet another rewrite
+          . correct "you you" (closes: bug#34285)
+          . correct upgrade message with /etc/ -> /etc/mail (closes: bug#32409)
+  * Don't automagically create sendmail.st, and henceforth preserve it
+    across upgrades if it exists.
+    . debian/rules             -- rm debian/tmp/var/sendmail/sendmail.st
+    . debian/sendmail.postinst -- mv /var/log/sendmail.st /var/sendmail/...
+  * Sendmail compliance:
+    . Move /etc/mail/sendmail.cw to /etc/mail/local-host-names
+    . Move /etc/aliases to /etc/mail/aliases and symlinks the two
+      so that current users of /etc/aliases continue to work and
+      the databases get built inside /etc/mail instead of /etc/
+  * FHS:
+    . Move /usr/doc to /usr/share/doc
+          . debian/rules
+    . Move /usr/man to /usr/share/man
+          . debian/local/site.config.m4
+    . Move /var/log/sendmail.st to /var/sendmail/sendmail.st
+          . debian/sendmail.postinst, debian/debian.m4
+    . Move /var/state/sendmail to /var/sendmail/host_status
+          . debian/sendmail.postinst, debian/debian.m4
+    . Move /usr/tmp/dead.letter to /var/sendmail/dead.letter
+          . This means mail is *no longer lost, but put herein*
+          . debian/site.config.m4 (closes: bug#24612)
+  * Properly fix FHS locations (bug#29420 from 8.9.1-16)
+    Sigh... If one puts the define in the wrong place, it doesn't work
+    . FHS: Move FEATURE(xxx) databases from /etc/ to /etc/mail/: (#29420)
+      bitdomain.m4, domaintable.m4, genericstable.m4, mailertable.m4,
+      uucpdomain.m4, virtusertable.m4
+    . Partial fix for 35548, except for /etc/aliases    (closes: bug#35548)
+  * Note that 8.9.3-3 also fixes part of 34405: allowing group writable
+    home and .forward...  I'm not going to change sendmail's treatment
+    of DontBlameSendmail from permanent to temporary - though I think
+    there might be a valid case for this! (closes: bug#34405)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Tue, 04 Oct 1999 17:33:21 -0500
+
+sendmail (8.9.3-3)  stable unstable; urgency=low, closes=35357
+
+  * group writable home, .forward (closes: bug#35357)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Sun, 18 Apr 1999 21:00:00 -0500
+
+sendmail (8.9.3-2)  unstable; urgency=low, closes=33656 33602 33405
+
+  * sendmail.postrm not doing suidunregister (closes: bug#33656)
+    Well, actually it tried... it was just in the wrong spot
+  * /etc/init.d/sendmail runs even after sendmail removed (closes: bug#33602)
+    Since policy calls for all MTAs to supply /usr/sbin/sendmail, and
+    /etc/mail/sendmail.cf was only deleted upon purge, I'm following
+    the suggestion of checking for /usr/doc/sendmail
+  * add purgestat to /usr/doc/sendmail/examples/ip-up.d (closes: bug#33405)
+    This will allow all mail to be delivered - this is only an example
+    file, however, so you'll have to edit you're /etc/ppp/ip-up.d/sendmail
+    file yourself
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 22 Feb 1999 13:14:21 -0500
+
+sendmail (8.9.3-1) frozen unstable; urgency=high, closes=33152 32872
+
+  * Refit Debian changes
+      . debian/site.config.m4    -- new defines for DOS fix
+      . debian/debian.m4         -- new defines for DOS fix, bump version
+      . debian/sendmail.postinst -- bump version to coerce sendmailconfig run
+  * New upstream version - bugfix only (closes: bug#33152)
+    . New version of DOS patch
+    . preserve order of MIME headers, correcting PGP signature problems
+  * FHS & Debian policy 5.5: move /bin/rmail to /sbin/rmail (closes: bug#32872)
+    sigh... This time, create a symlink so both exist
+    . debian/rules
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Wed, 10 Feb 1999 13:14:21 -0500
+
+sendmail (8.9.2-4) unstable; urgency=low
+
+  * debian/site.config.m4
+    . link with -ldb2 (sigh) why did glibc let me get away with
+       this obvious error?  glibc-2.1 doesn't...
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 25 Jan 1999 15:00:00 -0500
+
+sendmail (8.9.2-3) frozen unstable; urgency=high
+
+  * Yet another DOS attack from BugTraq -- patch from sendmail.org
+    . debian/site.config.m4   --
+    . debian/debian.m4        --
+    . src/conf.h              --
+    . src/collect.c           --
+    . src/sendmail.h          --
+    . src/readcf.c            --
+    . src/conf.c              --
+    . cf/m4/proto.m4          --
+  * Correct orca (ORBS) address to relays.orbs.org
+    . debian/orbs.m4          -- relays.orbs.org
+    . cf/m4/proto.m4          -- http://www.orbs.org
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 21 Jan 1999 15:00:00 -0500
+
+sendmail (8.9.2-2) frozen unstable; urgency=high
+
+  * Re upload to make both frozen and unstable.
+    The DOS update and nullclient (open relay) problems are severe
+    enough that I, and others, think this should make frozen.
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Wed, 20 Jan 1999 14:00:00 -0500
+
+sendmail (8.9.2-1) unstable; urgency=high, closes=30292
+
+  * New upstream source, bug fixes and a DOS fix
+    . syslog filling/DOS (#30292)
+    . libdb2 (Berkeley DB 2.6.4 API change)
+    . upstream inclusion of proto.m4 patches already in Debian
+    . upstream fixes for FHS issue wrt /etc/mail
+  * Update debproto.m4 for 8.9.2
+  * Drop Debian support of nullclient - it turns one into an unchecked relay!
+    current nullclients are converted to smarthosts with no loss of function-
+    ality.
+    . sendmailconfig
+  * See changelog for the unreleased 8.9.1-16 changes contained herein
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Tue, 05 Jan 1999 12:00:00 -0500
+sendmail (8.9.1-16) unstable; urgency=low, closes=27355 28410 28931 29420 30447
+
+  * Correct HACK(nodns) (#30447)
+  * Compile with new libc6 to remove versioned depends (#28931)
+  * add feature(orca): Dial User List
+    at the request of Paul Haggart <ph@bsfh.org>
+  * Correct README.Debian reference (#29613)
+    /usr/lib/sendmail.cf -> /usr/share/sendmail.cf
+  * Correct include library path for libdb2
+  * Update debproto.m4 for 8.9.1a, add proper diversion tags to
+    sendmailconfig
+  * Add MapInUnsafeDirPath to DontBlameSendmail (#27355)
+    so access.db may be in group writable directory
+  * FHS: Move FEATURE(xxx) databases from /etc/ to /etc/mail/: (#29420)
+    bitdomain.m4, domaintable.m4, genericstable.m4, mailertable.m4,
+    uucpdomain.m4, virtusertable.m4
+    -- IMPORTANT --
+    sendmailconfig can't automagically move all this for you, you'll
+    have to move the datasets and any update script by hand
+  * make the postinst actually wait for enter (#28410)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 30 Nov 1998 12:00:00 -0500
+
+sendmail (8.9.1-15) unstable; urgency=high, closes=28410
+
+  * The change to libdb2 requires that *all* sendmail databases be
+    rebuilt before sendmail restarts.  A warning is now issued to
+    inform the user of this change. (#28410)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Fri, 23 Oct 1998 12:00:00 -0500
+
+sendmail (8.9.1-14) unstable; urgency=low, closes=28279
+
+  * sendmail: adds multiple Content-Transfer-Encoding headers (#28279)
+    patch sent by Miquel van Smoorenburg <miquels@cistron.nl>
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Tue, 20 Oct 1998 18:00:00 -0500
+
+sendmail (8.9.1-13) unstable; urgency=low
+
+  * add feature(orbs): Open Relay Blocking System
+    at the request of Paul Haggart <ph@bsfh.org>
+  * patch for sendmail stalls on 2.0.x kernels
+    from Ben Gertzfield <che@debian.org>
+  * Build with libdb2 instead of libdb.  This chanage is mentioned as being
+    important in the sendmail documentation, and has been requested by both
+    i386 and sparc folks.
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Tue, 20 Oct 1998 12:00:00 -0500
+
+sendmail (8.9.1-12) unstable; urgency=high, closes=28226
+
+  * erf... remove sendmail.real from sendmail.postinst (#28226)
+    I have to remember to test on the machine w/o socks as well ;-{
+    ('twould be nice to have the source in a neutral CVS repository
+    so I could access from home and work)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Tue, 20 Oct 1998 10:00:00 -0500
+
+sendmail (8.9.1-11) unstable; urgency=high
+
+  * Correct /etc/init.d/sendmail
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 19 Oct 1998 11:00:00 -0500
+
+sendmail (8.9.1-10) unstable; urgency=high, closes=28034 27106 26855 27218
+
+  * Remove socks wrapper - need a wrapper program, not script as sendmail -F
+    doesn't work going from the socks wrapper, the runsocks wrapper, and then
+    finally to sendmail (#28034 and also #27106)
+  * sendmail wrapper requires bash for exec -a (#26855)
+  * sendmail wrapper was suid-root (#27218)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Sun, 18 Oct 1998 12:00:00 -0500
+
+sendmail (8.9.1-9) unstable; urgency=high, closes=26803
+
+  * correct the socks wrapper for non-socks case - I pulled
+    the wrong copy (#26803)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 17 Sep 1998 12:00:00 -0500
+
+sendmail (8.9.1-8) unstable; urgency=high, closes=26801
+
+  * sigh... restore rmail to /usr/bin, even though its presence
+    therein is a very longstanding bug (#26801)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 17 Sep 1998 11:00:00 -0500
+
+sendmail (8.9.1-7) unstable; urgency=high, closes=26610 26399 26106
+
+  * Remove dontinitgroups (#26610)
+    This change updates debian.m4 so you'll have to run sendmailconfig
+    to actually get the update enabled.
+  * update /etc/hosts.allow automagically (#26399)
+    sendmailconfig checks for sendmail in /etc/hosts.allow and
+    adds a leading sendmail: all line if needed
+  * sendmailconfig is now tolerant of warnings (#26106)
+  * socks5 support - /usr/sbin/sendmail is a wrapper that calls
+    /usr/sbin/sendmail.real if needed when runsocks is executable
+  * change checksendmail to a+x
+  * more cleanup of debian/rules
+  * FHS changes:
+    move /usr/lib/sendmail.cf/ to /usr/share/sendmail.cf/
+    move /usr/lib/sendmail.hf to /usr/share/sendmail/sendmail.hf
+    update sendmailconf, debian.m4
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 14 Sep 1998 10:00:00 -0500
+
+sendmail (8.9.1-6) unstable; urgency=high
+
+  * Sigh... I will not leave extraneous blanks in a .m4 file
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Wed, 14 Aug 1998 10:00:00 -0500
+
+sendmail (8.9.1-5) unstable; urgency=high, closes=25639
+
+  * Apply sendmail 8.9.1a security patch to protect the various MUAs
+    This patch updates debian.m4 so you'll have to run sendmailconfig
+    to actually get the protection enabled.
+  * Apply two proto.m4 patches from Claus:
+    - bug wrt overriding the RBL
+    - bug wrt prevention of unauthorized relay attempts
+  * Remove -Y from sensible-mda's invocation of procmail (#25639)
+  * sensible-mda now checks for /etc/procmailrc/<user> and if so,
+    calls procmail with the -m option... This allows one to deliver mail
+    to pseudo users without having to create entries in /etc/aliases
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 13 Aug 1998 10:00:00 -0500
+
+sendmail (8.9.1-4) unstable; urgency=med, closes=24456
+
+  * Correct sendmail.cf path in /usr/sbin/etrn (#24456)
+    also in /usr/sbin/checkmail
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Thu, 06 Aug 1998 17:00:00 -0500
+
+sendmail (8.9.1-3) unstable; urgency=high
+
+  * Cleanup debian/rules a bit...
+  * Correct /bin /sbin problem created with the reinstall of rmail
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Wed, 08 Jun 1998 12:00:00 -0500
+
+sendmail (8.9.1-2) unstable; urgency=high
+
+  * change /usr/doc/changelog to be RELEASE_NOTES
+  * add rmail back...
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 06 Jun 1998 12:00:00 -0500
+
+sendmail (8.9.1-1) unstable; urgency=low, closes=11132
+
+  * new upstream source
+  * /etc/init.d/sendmail and runq now support SOCKS5 if updated...
+    I personally run socks via /etc/ld.so.preload so that everything
+    is automagically socksified.
+  * Only add MASQUERADE_AS in sendmailconfig if needed (#11132)
+  * Correct define(`confMAX_DAEMON_CHILDREN', `30s')dnl (remove the s)
+
+ -- Richard A Nelson (Rick) <cowboy@debian.org>  Mon, 06 Jun 1998 10:00:00 -0500
+
+sendmail (8.9.0-5) unstable; urgency=high, closes=23870
+
+  * gack... when I stopped linking /etc/mail/sendmail.cf, I
+    missed the test in /etc/init.d/sendmail. (#23870)
+
+ -- Richard Nelson <cowboy@debian.org>  Thu, 25 Jun 1998 10:00:00 -0500
+
+sendmail (8.9.0-4) unstable; urgency=high, closes=23551
+
+  * Patch collect.c to prevent segfaults in mime8->mime7 (#23774)
+  * sensible-mda now ignores non-suid MDAs (#23000)
+  * postinst checks for curent release (#23551)
+    also - it no longer ln -sf /etc/mail/sendmail.cf /etc/sendmail.cf
+  * majordomo wants include files in group writeable dirs
+
+ -- Richard Nelson <cowboy@debian.org>  Tue, 16 Jun 1998 15:00:00 -0500
+
+sendmail (8.9.0-3) unstable; urgency=low
+
+  * Fix copyright file
+
+ -- Richard Nelson <cowboy@debian.org>  Sat, 13 Jun 1998 23:00:00 -0500
+
+sendmail (8.9.0-2) unstable; urgency=high, closes=23170 23137 23392 23138
+
+  * Point smrsh back to /usr/lib/sm.bin (#23170)
+  * Document TCP wrapper support in README.Debian (is this enough?) (#23137)
+    Also document that one should *really* read RELEASE_NOTES
+  * don't preformat man pages (#23392)
+  * forgot the /usr/lib/sendmail link (pine,uucp) (#23165)
+  * include pre 8.9.0 changelog (#23138)
+
+ -- Richard Nelson <cowboy@debian.org>  Sat, 13 Jun 1998 12:00:00 -0500
+
+sendmail (8.9.0-1) unstable; urgency=low
+
+  * first release of 8.9.0.  This drop is very beta in that I've not
+    done anything with the control files other than allowing group
+    writable directories for .forward.  I've also not done anything
+    with the rulesets to improve spam control.
+
+    Basically, this release is ONLY for those who want to play with
+    the new version and are experienced enough to modify it themselves.
+
+    I'm thinking of integrating the following into the next release,
+    please let me know what you think:
+        http://www.unix-ag.uni-hannover.de/soft/check_local/
+
+ -- Richard Nelson <cowboy@debian.org>  Sat, 23 May 1998 12:00:00 -0500
+
+sendmail (8.8.8-17) frozen; urgency=high, closes=22747
+
+  * add MAILER-DAEMON alias (#22747) This is a SEVERE problem
+    in that absence of this alias may cause mailing loops upon
+    delivery errors.
+
+ -- Richard Nelson <cowboy@debian.org>  Sat, 23 May 1998 12:00:00 -0500
+
+sendmail (8.8.8-16) unstable frozen; urgency=low, closes=21787 21744
+
+  * remove the `m' flag from LOCAL_MAILER_FLAGS (#21787)
+  * remove /etc/ppp/ip-{up,down}.d from debian/dirs (#21744)
+
+ -- Richard Nelson <cowboy@debian.org>  Sun, 03 May 1998 12:00:00 -0500
+
+sendmail (8.8.8-15) unstable frozen; urgency=low, closes=21071
+
+  * This time, hoststat and purgestat really are symlinks to sendmail ;-} (#21071)
+  * debhelperization start
+
+ -- Richard Nelson <cowboy@debian.org>  Sun, 19 Apr 1998 12:00:00 -0500
+
+sendmail (8.8.8-14) unstable frozen; urgency=low, closes=20657 20758
+
+  * <lart,mode=auto> rewrite desc for 20637 </lart> (#20758)
+  * Don't install /etc/ppp/ip-{up,down}.d/sendmail (#20657)
+
+ -- Richard Nelson <cowboy@debian.org>  Mon, 06 Apr 1998 09:00:00 -0500
+
+sendmail (8.8.8-13) unstable frozen; urgency=low, closes=20637 20335 20189
+
+  * Add --pidfile to start of daemon (#20637)
+    Allow starting when there are queue processes from prior incarnation
+  * Dangling man symlinks (#20335)
+  * Local mailer and mixed case users (#20189)
+  * Include updated ismx patch (updated rules)
+
+ -- Richard Nelson <cowboy@debian.org>  Sat, 04 Apr 1998 12:00:00 -0500
+
+sendmail (8.8.8-12) unstable frozen; urgency=low, closes=19972 19971 19081
+
+  * lintian bugs
+  * /usr/doc/sendmail/checksum.txt has mode 600 (#19972)
+  * sensible.mda needs man page (#19971)
+  * Change LOCAL_SHELL_FLAGS to stop queueing of local mail (#19081)
+
+ -- Richard Nelson <cowboy@debian.org>  Sat, 21 Mar 1998 12:00:00 -0500
+
+sendmail (8.8.8-11) unstable; urgency=low
+
+  * Correct package build so both source/binary show up
+
+ - Richard Nelson <cowboy@debian.org>  Sun,  8 Mar 1998 16:36:00 -0500
+
+sendmail (8.8.8-10) unstable; urgency=low, closes=16883 19129
+
+  * New maintainer
+  * Updated to Standards-Version 2.4.0.0.
+  * Made -q default to 10 minutes instead of 30.
+  * Debian.mc: ct,cw optional, temp_mode, etc.
+  * Add /etc/ppp/ip-{up,down}.d/sendmail (#19129)
+
+ -- Richard Nelson <cowboy@debian.org>  Sun,  8 Mar 1998 12:00:00 -0500
+
+sendmail (8.8.8-9) unstable; urgency=low
+
+  * Added examples for other operating systems to cf/ostype, per
+    StormCrow's request.
+
+ -- Johnie Ingram <johnie@debian.org>  Mon,  9 Feb 1998 17:23:54 -0500
+
+sendmail (8.8.8-8) unstable; urgency=low, closes=17454 17809
+
+  * Manpage for etrn.8 is no longer executable (#17454).
+  * Added checksendmail script from BSDI contrib.
+  * Debian releases of 8.8.6 and later include a .dsc file (#17809).
+  * Added HACK(rblspam) from Manoj Srivastava (srivasta@debian.org) to
+    redirect messages from RBLed wastelands to a user called "spam".
+
+ -- Johnie Ingram <johnie@debian.org>  Fri,  6 Feb 1998 23:08:55 -0500
+
+sendmail (8.8.8-7) unstable; urgency=low
+
+  * The sendmailconfig program no longer forces FEATURE(local_procmail).
+
+ -- Johnie Ingram <johnie@debian.org>  Wed, 21 Jan 1998 13:30:33 -0500
+
+sendmail (8.8.8-6) unstable; urgency=low, closes=7903 9788 12413 12453 14253 14520 14575 14711 15508 15593 16065 16079
+
+  * Added Realtime Black Hole ruleset: HACK(rbl).
+  * Includes alternate nsswitch file which does not use DNS, allowing
+    run-time deactivation with HACK(nodns) (#12413, #12453, cf. 6495,
+    early stage of fix of 16883).
+  * Made name of spam control README more obvious by popular request of
+    IRC, and corrected "dbm" to "hash" in documentation (#16065).
+  * Now determines at runtime which mail delivery agent to invoke
+    (#15593), so dependency is restored to "procmail | deliver" (#14253).
+  * Corrected location of sendmail.st file (#14575, #15508, #16079).
+  * The option of setting the expensive flag in mailer definitions is
+    enabled by default, making modem-based setups easier (#9788).
+  * Corrected tcpwraper support patch so support is activatable again, and
+    disabled by default (#14520, #14711).
+  * ETRN and EXPN programs now included, from the contrib dir.
+  * A persistent host status directory is defined, so the daemon need not
+    reattempt a connect to known-bad hosts during simultaneous queue runs.
+  * Enabled tiered connect timeout in queue runs, lessening the effect of
+    slow peers delaying the queue runs of mailing lists.
+  * Queue runs are now sorted, by host to be connected to.
+  * A limit is set on the number of live children to prevent DoS attacks.
+  * Outbound connections are now quickly retried once after diald has time
+    to react, then queued normally.
+  * For speed, initgroups (supplemental group permissions) are disabled by
+    default -- this would require a sequential scan of the groups file.
+  * Added SHELL=/bin/bash to rules file and increased debhelperization.
+  * Closed #13384, corrected by sed fix to sendmailconfig (cf. 14547).
+  * Some undocumented features may now be enabled by config files:
+      O PidFile=/var/run/sendmail.pid
+      O WritableDirectoriesAreFatal=False
+      O DontProbeInterfaces=False
+      O MaxRecipientPerMessage=
+      O DeadLetterDrop=False
+      O TcpWrappers=False
+  * Undocumented features are documented in /usr/lib/sendmail.cf/ostype/debian.
+  * No longer runs dpkg-shlibdeps on shell scripts.
+  * Documentation files now preserve original timestamps whenever possible.
+  * Closed #7903, apparently not a problem with hamm mailx.
+  * All provided DOMAIN() examples are now included.
+  * Perl example for converting passwd file to aliases database included.
+
+ -- Johnie Ingram <johnie@debian.org>  Tue, 20 Jan 1998 23:06:30 -0500
+
+sendmail (8.8.8-5) unstable; urgency=low, closes=16389
+
+  * Compiled with the -D_FFR_DONT_PROBE_INTERFACES_OPTION option (#16389).
+
+ -- Johnie Ingram <johnie@debian.org>  Tue, 30 Dec 1997 16:57:51 -0500
+
+sendmail (8.8.8-4) unstable; urgency=low, closes=15707 15990 16000
+
+  * Corrected package md5sum error (#15990, #16000).
+  * Removed errant mail delivery agent mail.local (#15707).
+
+ -- Johnie Ingram <johnie@debian.org>  Wed, 17 Dec 1997 11:54:59 -0500
+
+sendmail (8.8.8-3) unstable; urgency=low
+
+  * Tweaked debian/rules to autocompile on debian-powerpc.
+
+ -- Johnie Ingram <johnie@debian.org>  Tue,  9 Dec 1997 17:56:42 -0500
+
+sendmail (8.8.8-2) unstable; urgency=low, closes=14894 14565 15552 15131 14825 14292 14547
+
+  * Init script now defines PIDFILE (#15552, #15131, #14825).
+  * Binaries are now stripped (#14894, #14565).
+  * Applied patch so sendmail postinst is now reentrant (#14292).
+  * Added sed fix to sendmailconfig (#14547).
+
+ -- Johnie Ingram <johnie@debian.org>  Wed,  3 Dec 1997 18:49:51 -0500
+
+sendmail (8.8.8-1) unstable; urgency=low, closes=12235 13817 13864
+
+  * New upstream version.
+  * Now includes sendmail FAQ from rtfm.mit.edu (#12235).
+  * Added code from David Rocher for compliance with the Standard for
+    Console Messages (#13817).
+  * No longer depends exclusively on procmail (#13864).
+
+ -- Johnie Ingram <johnie@debian.org>  Wed, 29 Oct 1997 17:11:50 -0500
+
+sendmail (8.8.7-5) unstable; urgency=low
+
+  * Added patch from Miquel van Smoorenburg <miquels@cistron.nl> to enable
+    tcpwrap support at runtime (support now disabled by default).
+
+ -- Johnie Ingram <johnie@debian.org>  Sat,  4 Oct 1997 15:05:03 -0400
+
+sendmail (8.8.7-4) unstable; urgency=low
+
+  * Fixed problem with sendmailconfig reported by Scott K. Ellis.
+
+ -- Johnie Ingram <johnie@debian.org>  Thu,  2 Oct 1997 11:22:12 -0400
+
+sendmail (8.8.7-3) unstable; urgency=low
+
+  * No longer depends on deliver (#11655).
+  * Updated to Standards-Version 2.3.0.0.
+  * Corrected typo in debian/rules which prevented tcpwrapper support from
+    working.
+
+ -- Johnie Ingram <johnie@debian.org>  Wed,  1 Oct 1997 14:02:01 -0400
+
+sendmail (8.8.7-2) unstable; urgency=low
+
+  * Fixed bug in yesno() function in sendmailconfig (#12035) which caused
+    it to ignore user input in some cases.
+  * Added patch for ifmail fidonet mailer support (#12241).
+  * Registered sendmail permissions with suidregister.
+  * Added patch from Herbert Xu so sendmailconfig will work with ash
+    (#12211).
+  * Fixed detection of compatible sendmail.cf files.
+  * Tweaked packaging to improve multi-architecture, multi-compiler
+    support.
+
+ -- Johnie Ingram <johnie@debian.org>  Sun, 31 Aug 1997 05:00:20 -0400
+
+sendmail (8.8.7-1) unstable; urgency=low
+
+  * New upstream bugfix version (pristine source) (#11932).
+  * Updated to Standards-Version: 2.2.0.0.
+
+ -- Johnie Ingram <johnie@debian.org>  Thu,  7 Aug 1997 18:12:23 -0400
+
+sendmail (8.8.6-4) unstable; urgency=low
+
+  * Added spam control hacks by Claus Assmann (#5795).
+
+ -- Johnie Ingram <johnie@debian.org>  Sat, 26 Jul 1997 13:54:58 -0400
+
+sendmail (8.8.6-3) unstable; urgency=low
+
+  * Added binary-arch target to debian/rules (#11400).
+
+ -- Johnie Ingram <johnie@debian.org>  Tue, 22 Jul 1997 04:52:54 -0400
+
+sendmail (8.8.6-2) unstable; urgency=low
+
+  * Added patch to sendmailconfig from Darrin Stalder so it accepts
+    procmail as an alternate local delivery agent (#7897, fixing #3752,
+    #3753, #3754, #4064, #9074, much of 10860).  Go Darrin.
+  * No longer requires "deliver" for installation (bug list above).
+  * Created a "runq" script at request of Martin "Joey" Schulze (#9268).
+  * Enabled default support for limited 7->8 bit MIME autoconversion,
+    since this security hole was fixed (#6815, #10491).
+  * Edited sendmailconfig to make it more clear that a FQDN is needed
+    during setup of /etc/mailname (#10512).
+  * Added the mail.local local delivery program (cf. 4064).
+  * Corrected name of init script in sendmail(8) manpage from /etc/rc to
+    /etc/init.d/sendmail (#9176).
+  * Closed #6093, a duplicate of 6495 (sendmail insists on performing DNS
+    lookups, bringing the PPP link up unnecessarily).  Unfortunately 6495
+    is a known bug in the 8.8 series which is not yet fixed.
+  * Closed #7843 (incorrect upstream PROCMAIL_MAILER_PATH), since this is
+    always redefined by OSTYPE(debian).
+  * Closed #5321 -- performance demands that sendmail be run as a daemon.
+  * Closed #9550, since package is now in new source format and compliant
+    with Standards-Version 2.1.3.3 (cf. 7077, 9845).
+  * Closed #5676 (core dump) posted against 8.7.6, which does not apply to
+    the versions currently in use in the stable and unstable
+    distributions.
+  * No longer requires "deliver" for installation (worth repeating).
+
+ -- Johnie Ingram <johnie@debian.org>  Sun, 20 Jul 1997 01:48:51 -0400
+
+sendmail (8.8.6-1) unstable; urgency=low
+
+  * New maintainer.
+  * Converted to new source format (#7077, #9845).
+  * Added "debug" target to /etc/init.d/sendmail to dump status to syslog.
+  * Modified build makefile to work with bash 2.0, and with libc6 tools.
+  * Changed tone of long description and similar blurbs from "complex" to
+    "powerful".
+  * Added PGP-signed file checksums.
+  * Included upstream changelog, created Debian changelog (#7075).
+  * Added Debian and GNU to default configuration string.
+
+ -- Johnie Ingram <johnie@debian.org>  Sat, 19 Jul 1997 04:26:45 -0400
+
+Local variables:
+mode: debian-changelog
+add-log-mailing-address: "cowboy@debian.org"
+End:

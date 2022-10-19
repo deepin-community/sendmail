@@ -1,0 +1,241 @@
+#!/usr/bin/make -f
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+DPKG_EXPORT_BUILDFLAGS   = yes
+include /usr/share/dpkg/buildflags.mk
+include /usr/share/dpkg/pkg-info.mk
+
+DEB_SOURCE_PACKAGE	?= sendmail
+DEB_SRCDIR		?= .
+DEB_DESTDIR		?= $(CURDIR)/debian/tmp/
+
+CFLAGS   += -fPIC
+LDFLAGS  += -Wl,-z,noexecstack -Wl,--warn-shared-textrel
+
+version_debian	?= -$(lastword $(subst -, ,${DEB_VERSION}))
+SRC_DIR    := $(CURDIR)/debian
+PKG_DIR    := debian/${DEB_SOURCE_PACKAGE}-bin
+PKG_DOC     = debian/${DEB_SOURCE_PACKAGE}-doc${docdir}/${DEB_SOURCE_PACKAGE}-doc
+SM_SUBDIRS := editmap libmilter mail.local mailstats \
+		makemap praliases rmail sendmail smrsh vacation
+PKG_TMP	 = debian/tmp
+# this is a "magic" value since it matches "obj${prefix}.${sfx}" if it exists
+# and will be used by the sendmail Build script
+SM_OBJDIR	?= obj.
+
+# Now that all that is out of the way, read the desired configuration
+# settings
+CONF_NAME = debian/configure.options
+$(eval CONFIG_OPTS := $(shell grep -v "^\#" ${CONF_NAME}))
+CONFIG_OPTS	+= ${SM_CONF_OPT}
+
+# Include Debian Autoconf settings
+include $(firstword $(wildcard debian/build/autoconf.mk \
+	debian/build/autoconf.mk.in))
+
+
+#-------------
+# Maintainer only rule... convert upstream signature from .sig into .asc
+%.asc: %.sig
+	gpg -o - --enarmor $< | sed 's/ARMORED FILE/SIGNATURE/; /^Comment:/d' > $@
+
+
+#-------------
+# Maintainer only rule... refresh upstream signing keys
+debian/upstream/signing-key.asc: HOME=import-upstream-signing-keys
+debian/upstream/signing-key.asc: PGPKEYS
+	mkdir import-upstream-signing-keys
+	gpg --import < $<
+	gpg --armor --export --export-options export-minimal,export-clean >$@
+	$(RM) -r import-upstream-signing-keys
+
+
+#-------------
+# Maintainer only rule... refresh debian/control
+control-real:
+	# generate debian/configure
+	dh_autoreconf
+	# run twice in case debian/control gets updated
+	debian/rules configure || debian/rules configure
+	# cleanup
+	debian/rules clean
+
+
+#-------------
+# Maintainer only rule... must be run in external debian directory
+.PHONY: refresh-faq
+refresh-faq::
+	@echo 'Refreshing FAQ'
+	@chmod u+w faq.txt;
+	(wget --passive-ftp --timestamping \
+		--cache=off http://www.sendmail.org/faq/faq.txt;);
+	@chmod a-w faq.txt;
+	@echo 'Refreshing Misc'
+	@chmod u+w cf/feature/rhsbl.m4;
+	(cd cf/feature && wget --passive-ftp --timestamping \
+		--cache=off http://www.megacity.org/software_downloads/rhsbl.m4;);
+	@chmod u-w cf/feature/rhsbl.m4;
+
+
+#------------------------------------------------------------------------------
+# Build/Package check rules
+#------------------------------------------------------------------------------
+#-------------
+.PHONY: info
+info:
+	#--------------------------------------------------------------------
+	# The following information will be used for this run:
+	#	Source	   = ${DEB_SOURCE_PACKAGE}
+	#	Package    = ${DEB_SOURCE_PACKAGE} ${DEB_VERSION}
+	#	             ${version_string}${sm_custom_s}${version_debian}
+	#	BuildTree  = ${DEB_SRCDIR}
+	#	Arch	   = ${DEB_BUILD_ARCH} on ${DEB_HOST_ARCH}
+	#	Options
+	#	  configure   = ${CONFIG_OPTS}
+	#	  config opt  = ${SM_CONF_OPT}
+	#	  ENABLE_INDEP= ${ENABLE_INDEP}
+	#	  ENABLE_ARCH = ${ENABLE_ARCH}
+	#	  ENABLE_DEV  = ${ENABLE_DEV}
+	#	  ENABLE_DOC  = ${ENABLE_DOC}
+	#	  compile opt = ${CC} ${CFLAGS} ${DEFINES}
+	#	DEB_BUILD_OPTIONS = ${DEB_BUILD_OPTIONS}
+	#	DH_VERBOSE = ${DH_VERBOSE}
+	#	DH_OPTIONS = ${DH_OPTIONS}
+	#	DH_COMPAT  = ${DH_COMPAT}
+	#--------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+# User callable rules
+#------------------------------------------------------------------------------
+
+%:
+	dh $@
+
+override_dh_auto_clean:
+	$(RM) ${DEB_SRCDIR}/doc/op/op.txt
+	dh_auto_clean -D debian
+	$(RM) -r $(SM_OBJDIR)
+
+configure: override_dh_auto_configure ;
+
+override_dh_auto_configure:
+	mkdir -p $(SM_OBJDIR)
+	dh_auto_configure -D debian -- $(CONFIG_OPTS)
+
+override_dh_auto_build-indep:
+	#--------------------------------------------------------------------
+	# build-indep:
+	#
+	# sendmail operations guide
+	GROFF_NO_SGR=1 $(MAKE) -C ${DEB_SRCDIR}/doc/op/ op.txt
+	# Debian stuff
+	$(MAKE) -C debian -f Makefile build-indep
+	#--------------------------------------------------------------------
+
+override_dh_auto_install-indep:
+	#--------------------------------------------------------------------
+	# install-indep
+	#
+	# sendmail operations guide and other documentation
+	${INSTALL} -d ${PKG_DOC}/op
+	$(INSTALL_DATA) ${DEB_SRCDIR}/doc/op/op.ps	${PKG_DOC}/op/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/doc/op/op.txt	${PKG_DOC}/op/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/README		${PKG_DOC}/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/KNOWNBUGS		${PKG_DOC}/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/cf/README		${PKG_DOC}/cf.README
+	${INSTALL} -d ${PKG_DOC}/sendmail
+	$(INSTALL_DATA) ${DEB_SRCDIR}/sendmail/README		${PKG_DOC}/sendmail/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/sendmail/SECURITY		${PKG_DOC}/sendmail/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/sendmail/TRACEFLAGS	${PKG_DOC}/sendmail/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/sendmail/TUNING		${PKG_DOC}/sendmail/
+	$(INSTALL_DATA) ${DEB_SRCDIR}/smrsh/README	${PKG_DOC}/smrsh.README
+	$(INSTALL_DATA) debian/faq.txt			${PKG_DOC}/
+	${INSTALL} -d ${PKG_DOC}/libmilter/html
+	$(INSTALL_DATA) ${DEB_SRCDIR}/libmilter/README	${PKG_DOC}/libmilter/
+	cp -a ${DEB_SRCDIR}/libmilter/docs/*		${PKG_DOC}/libmilter/html/
+	# Debian stuff
+	$(MAKE) -C debian/cf		-f Makefile install-indep DESTDIR="${SRC_DIR}/sendmail-cf"
+	$(MAKE) -C debian/examples	-f Makefile install-indep DESTDIR="${SRC_DIR}/sendmail-base"
+	$(MAKE) -C debian/local		-f Makefile install-indep DESTDIR="${SRC_DIR}/sendmail-base"
+	#--------------------------------------------------------------------
+
+override_dh_auto_build-arch:
+	#--------------------------------------------------------------------
+	# build-arch
+	#
+	# Place our m4 configuration files for the sendmail build to use
+	cp -f debian/build/site.config.m4 ${DEB_SRCDIR}/devtools/Site/
+	# Finally, build the whole enchilada (we'll let sendmail figure
+	# which, if any of the dependant libraries each component needs)
+	set -e ; \
+	set -x ; \
+	for subdir in ${SM_SUBDIRS}; do \
+		if [ -d  ${DEB_SRCDIR}/$${subdir} ]; then \
+			(cd ${DEB_SRCDIR}/$${subdir} && ./Build -S;); \
+			fi; \
+		done;
+	# Debian stuff
+	$(MAKE) -C debian -f Makefile build-arch
+	# Remove our config m4 files
+	$(RM) ${DEB_SRCDIR}/devtools/Site/site.config.m4
+	#--------------------------------------------------------------------
+
+override_dh_auto_install-arch:
+	#--------------------------------------------------------------------
+	# install-arch
+	#
+	# sendmail install proper... with a little help ;-}
+	$(MAKE) -C ${DEB_SRCDIR}		install		DESTDIR="$(DEB_DESTDIR)"
+	$(MAKE) -C ${DEB_SRCDIR}/libmilter	install		DESTDIR="$(DEB_DESTDIR)"
+	$(MAKE) -C ${DEB_SRCDIR}/mail.local	force-install	DESTDIR="$(DEB_DESTDIR)"
+	# Debian stuff
+	$(MAKE) -C debian/sensible_mda		install-arch	DESTDIR="$(DEB_DESTDIR)"
+	# Handle man pages for the sendmail aliases
+	mv ${PKG_TMP}${mandir}/man5/aliases.5 \
+		${PKG_TMP}${mandir}/man5/aliases.sendmail.5
+	mv ${PKG_TMP}${mandir}/man1/mailq.1 \
+		${PKG_TMP}${mandir}/man1/mailq.sendmail.1
+	mv ${PKG_TMP}${mandir}/man1/newaliases.1 \
+		${PKG_TMP}${mandir}/man8/newaliases.sendmail.8
+	mv ${PKG_TMP}${mandir}/man8/sendmail.8 \
+		${PKG_TMP}${mandir}/man8/sendmail.sendmail.8
+	# Special handling of vacation - Debian has a seperate package
+	# with a different version (sigh) keep our copy just in case...
+	mv ${PKG_TMP}${libexecdir}/vacation \
+		${PKG_TMP}${libexecdir}/vacation.sendmail
+	mv ${PKG_TMP}${mandir}/man1/vacation.1 \
+		${PKG_TMP}${mandir}/man1/vacation.sendmail.1
+	${INSTALL} -d ${PKG_TMP}${libdir}/pkgconfig
+	$(INSTALL_DATA) ${SRC_DIR}/milter.pc ${PKG_TMP}${libdir}/pkgconfig/milter.pc
+	#--------------------------------------------------------------------
+
+override_dh_installdocs-indep:
+	# Avoid recording the build path in the documentation
+	sed -i -e "s,prefix-map=$(CURDIR),prefix-map=BUILDPATH,g" debian/build/site.config.m4
+	dh_installdocs -p${DEB_SOURCE_PACKAGE}-doc --doc-main-package=${DEB_SOURCE_PACKAGE}-doc -A $(DEB_SRCDIR)/README
+	dh_installdocs -N${DEB_SOURCE_PACKAGE}-doc -A $(DEB_SRCDIR)/README
+
+override_dh_installdocs-arch:
+	dh_installdocs -A $(DEB_SRCDIR)/README
+
+override_dh_installchangelogs:
+	dh_installchangelogs $(DEB_SRCDIR)/RELEASE_NOTES
+
+override_dh_installcron:
+	dh_installcron --name=$(DEB_SOURCE_PACKAGE)
+
+override_dh_installinit:
+	dh_installinit --name=$(DEB_SOURCE_PACKAGE)
+
+override_dh_bugfiles:
+	dh_bugfiles -A
+
+execute_after_dh_fixperms-arch:
+	chown root:mail ${PKG_DIR}${libexecdir}/sendmail;
+	chmod 02755 ${PKG_DIR}${libexecdir}/sendmail;
+	chown root:mail ${PKG_DIR}${libexecdir}/mailstats;
+	chmod 02755 ${PKG_DIR}${libexecdir}/mailstats;
+	chmod 04755 debian/sensible-mda/usr/sbin/sensible-mda;

@@ -1,0 +1,2 @@
+.@localstatedir@/spool/mqueue
+.@localstatedir@/spool/mqueue-client

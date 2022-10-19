@@ -1,0 +1,34 @@
+Author: Andreas Beckmann <anbe@debian.org>
+Description: fix typos
+
+--- a/sendmail/sendmail.8
++++ b/sendmail/sendmail.8
+@@ -604,7 +604,7 @@ adds a header reading
+ .TP
+ .RI MaxDaemonChildren= N
+ Sets the maximum number of children that an incoming SMTP daemon
+-will allow to spawn at any time to
++will be allowed to spawn at any time to
+ .IR N .
+ .TP
+ .RI ConnectionRateThrottle= N
+--- a/contrib/expn.pl
++++ b/contrib/expn.pl
+@@ -774,7 +774,7 @@ sub domainify
+ 	}
+ 
+ 	# 
+-	# There are several weird situtations that need to be 
++	# There are several weird situations that need to be 
+ 	# accounted for.  They have to do with domain relay hosts.
+ 	#
+ 	# Examples: 
+@@ -1023,7 +1023,7 @@ sub mxlookup
+ 		}
+ 		if (/Non-existent domain/) {
+ 			#
+-			# These addresss are hosed.  Kaput!  Dead! 
++			# These addresses are hosed.  Kaput!  Dead!
+ 			# However, if we created the address in the
+ 			# first place then there is a chance of 
+ 			# salvation.

@@ -1,0 +1,85 @@
+#!/bin/sh
+set -e;
+
+PACKAGE=sendmail-base;
+
+if [ "$1" = "remove" ]; then
+		if which update-inetd > /dev/null; then
+			update-inetd --disable smtp,smtps,submission
+			fi;
+
+		# Make sure /etc/aliases is left (move it from /etc/mail if needed)
+		if [ -L @sysconfdir@/mail/aliases ]; then
+			rm -f @sysconfdir@/mail/aliases;
+		elif [ -f @sysconfdir@/mail/aliases ] \
+		&&   [ -L /etc/aliases ]; then
+			mv @sysconfdir@/mail/aliases /etc/aliases;
+			fi;
+
+		# Remove pseudo conffiles (managed by sendmail)
+		rm -f	@sysconfdir@/cron.d/sendmail;
+
+		# Remove files scattered across the system that
+		# happened to be created by sendmail
+		rm -f @prefix@/lib/sasl/Sendmail.conf
+
+		# Remove those files created by sendmail
+		rm -rf	@localstatedir@/lib/sendmail;
+		rm -rf	@localstatedir@/run/sendmail;
+		# Note: syslog really owns these files
+		#rm -f	@localstatedir@/log/mail/*;
+		#rm -f	@localstatedir@/log/mail.log;
+		# Note: these can lead to a loss of mail!!!!
+		if [ -x @sysconfdir@/init.d/sendmail ]; then
+			@sysconfdir@/init.d/sendmail clean;
+			fi;
+		if [ -L @localstatedir@/spool/mqueue ]; then
+			rmdir --ignore-fail-on-non-empty \
+			`readlink -fn @localstatedir@/spool/mqueue`;
+		elif [ -d @localstatedir@/spool/mqueue ]; then
+			rmdir	--ignore-fail-on-non-empty \
+				@localstatedir@/spool/mqueue;
+			fi;
+		if [ -L @localstatedir@/spool/mqueue-client ]; then
+			rmdir	--ignore-fail-on-non-empty \
+			`readlink -fn @localstatedir@/spool/mqueue-client`;
+		elif [ -d @localstatedir@/spool/mqueue-client ]; then
+			rmdir	--ignore-fail-on-non-empty \
+				@localstatedir@/spool/mqueue-client;
+			fi;
+
+		# Remove sendmail built configuration files
+		rm -f	@sysconfdir@/mail/*.db \
+			@sysconfdir@/mail/*.dir \
+			@sysconfdir@/mail/*.pag;
+		rm -f	@sysconfdir@/mail/sendmail.cf \
+			@sysconfdir@/mail/sendmail.cf.old \
+			@sysconfdir@/mail/sendmail.cf.errors \
+			@sysconfdir@/mail/sendmail.mc.old \
+			@sysconfdir@/mail/submit.cf \
+			@sysconfdir@/mail/submit.cf.errors \
+			@sysconfdir@/mail/submit.mc.old \
+			@sysconfdir@/mail/databases \
+			@sysconfdir@/mail/Makefile \
+			;
+		rm -rf @sysconfdir@/mail/smrsh \
+			@sysconfdir@/mail/sasl \
+			@sysconfdir@/mail/tls;
+
+		# Remove empty files (probably touched databases)
+		find @sysconfdir@/mail -maxdepth 1 -type f -size 0 -delete
+fi
+
+if [ "$1" = "upgrade" ]; then
+		# Potentially move the old configuration file to the new name -
+		# before it gets deleted (for not existing in the new package)
+		mv -f @sysconfdir@/default/sendmail \
+			@sysconfdir@/mail/sendmail.conf 2>/dev/null || true;
+
+		# Prevent cronjob from running during upgrade...
+		if [ -f /etc/cron.d/sendmail ]; then
+			echo "#prerm" > @sysconfdir@/cron.d/sendmail;
+			fi;
+fi
+
+#DEBHELPER#

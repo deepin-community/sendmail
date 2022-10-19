@@ -1,0 +1,13 @@
+Description: /usr/bin/faxmail, !/usr/local/bin/faxmail
+
+--- a/cf/mailer/fax.m4
++++ b/cf/mailer/fax.m4
+@@ -19,7 +19,7 @@ PUSHDIVERT(-1)
+ ifdef(`FAX_MAILER_ARGS',,
+ 	`define(`FAX_MAILER_ARGS', faxmail -d $u@$h $f)')
+ ifdef(`FAX_MAILER_PATH',,
+-	`define(`FAX_MAILER_PATH', /usr/local/bin/faxmail)')
++	`define(`FAX_MAILER_PATH', /usr/bin/faxmail)')
+ ifdef(`FAX_MAILER_MAX',,
+ 	`define(`FAX_MAILER_MAX', 100000)')
+ define(`_FAX_QGRP', `ifelse(defn(`FAX_MAILER_QGRP'),`',`', ` Q=FAX_MAILER_QGRP,')')dnl

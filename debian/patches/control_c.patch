@@ -1,0 +1,13 @@
+Description: Make control socket mode 0660
+
+--- a/sendmail/control.c
++++ b/sendmail/control.c
+@@ -138,7 +138,7 @@ opencontrolsocket()
+ 		}
+ 	}
+ 
+-	if (chmod(ControlSocketName, S_IRUSR|S_IWUSR) < 0)
++	if (chmod(ControlSocketName, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP) < 0)
+ 	{
+ 		save_errno = errno;
+ 		closecontrolsocket(true);

@@ -1,0 +1,72 @@
+From: Samuel Thibault <sthibault@debian.org>
+Subject: fix building for HURD
+
+--- a/include/sm/conf.h
++++ b/include/sm/conf.h
+@@ -1133,15 +1133,23 @@ extern unsigned int sleepX __P((unsigned
+ 
+ # if defined(__GNU__) && !defined(NeXT)
+ #  include <paths.h>
+-#  define HASFCHMOD	1	/* has fchmod(2) call */
+-#  define HASFCHOWN	1	/* has fchown(2) call */
++#  define BSD		1	/* include BSD defines */
++#  define HASSETREGID	1	/* use setregid(2) to set saved gid */
++#  ifndef REQUIRES_DIR_FSYNC
++#   define REQUIRES_DIR_FSYNC	1	/* requires fsync() on directory */
++#  endif /* REQUIRES_DIR_FSYNC */
++#  ifndef USESETEUID
++#   define USESETEUID	0	/* has it due to POSIX, but doesn't work */
++#  endif /* USESETEUID */
++#  define SM_CONF_GETOPT	0	/* need a replacement for getopt(3) */
+ #  define HASUNAME	1	/* has uname(2) call */
+ #  define HASUNSETENV	1	/* has unsetenv(3) call */
+-#  define HAS_ST_GEN	1	/* has st_gen field in stat struct */
+-#  define HASSTRERROR	1	/* has strerror(3) */
++#  define ERRLIST_PREDEFINED	1	/* don't declare sys_errlist */
+ #  define GIDSET_T	gid_t
+-#  define SOCKADDR_LEN_T	socklen_t
+-#  define SOCKOPT_LEN_T	socklen_t
++#  define HAS_IN_H	1	/* GNU has netinet/in.h. */
++#  ifndef USE_SIGLONGJMP
++#   define USE_SIGLONGJMP	1 /* sigsetjmp needed for signal handling */
++#  endif /* ! USE_SIGLONGJMP */
+ #  if (__GLIBC__ == 2 && __GLIBC_MINOR__ > 1) || __GLIBC__ > 2
+ #   define LA_TYPE	LA_SUBR
+ #  else /* (__GLIBC__ == 2 && __GLIBC_MINOR__ > 1) || __GLIBC__ > 2 */
+@@ -1150,11 +1158,34 @@ extern unsigned int sleepX __P((unsigned
+ #   define host_self	mach_host_self
+ #  endif /* (__GLIBC__ == 2 && __GLIBC_MINOR__ > 1) || __GLIBC__ > 2 */
+ #  define SFS_TYPE	SFS_STATFS
++#  define SPT_PADCHAR	'\0'		/* pad process title with nulls */
++#   ifndef HASURANDOMDEV
++#    define HASURANDOMDEV 1	/* 2.0 (at least) has linux/drivers/char/random.c */
++#   endif /* ! HASURANDOMDEV */
++#  define HASSTRERROR	1	/* has strerror(3) */
++#  ifndef TZ_TYPE
++#   define TZ_TYPE	TZ_NONE		/* no standard for Linux */
++#  endif /* ! TZ_TYPE */
++#  ifndef _PATH_SENDMAILPID
++#   define _PATH_SENDMAILPID	"/var/run/sendmail.pid"
++#  endif /* ! _PATH_SENDMAILPID */
++#  include <sys/sysmacros.h>
++#  undef atol			/* wounded in <stdlib.h> */
++#  if NETINET6
++#     undef IPPROTO_ICMPV6	/* linux #defines, glibc enums */
++#    if !defined(NEEDSGETIPNODE)
++     /* Have APIs in <netdb.h>, but no support in glibc */
++#     define NEEDSGETIPNODE	1
++#    endif /* (GLIBC_VERSION >= 0x201 && !defined(NEEDSGETIPNODE)) */
++#  endif /* NETINET6 */
++#  define HASFCHOWN	1	/* has fchown(2) call */
++#  define HASFCHMOD	1	/* has fchmod(2) call */
++#  define HAS_ST_GEN	1	/* has st_gen field in stat struct */
++#  define SOCKADDR_LEN_T	socklen_t
++#  define SOCKOPT_LEN_T	socklen_t
+ #  define SPT_TYPE	SPT_CHANGEARGV
+-#  define ERRLIST_PREDEFINED	1	/* don't declare sys_errlist */
+ #  define BSD4_4_SOCKADDR	1	/* has sa_len */
+ #  define SIOCGIFCONF_IS_BROKEN  1	/* SIOCGFCONF doesn't work */
+-#  define HAS_IN_H	1	/* GNU has netinet/in.h. */
+ /* GNU has no MAXPATHLEN; ideally the code should be changed to not use it. */
+ #  define MAXPATHLEN	2048
+ # endif /* defined(__GNU__) && !defined(NeXT) */

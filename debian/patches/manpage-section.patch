@@ -1,0 +1,14 @@
+Author: Andreas Beckmann <anbe@debian.org>
+Description: move newaliases to man section 8
+
+--- a/sendmail/newaliases.1
++++ b/sendmail/newaliases.1
+@@ -11,7 +11,7 @@
+ .\"
+ .\"     $Id: newaliases.1,v 8.20 2013-11-22 20:51:56 ca Exp $
+ .\"
+-.TH NEWALIASES 1 "$Date: 2013-11-22 20:51:56 $"
++.TH NEWALIASES 8 "$Date: 2013-11-22 20:51:56 $"
+ .SH NAME
+ newaliases
+ \- rebuild the data base for the mail aliases file

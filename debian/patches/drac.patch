@@ -1,0 +1,24 @@
+--- /dev/null
++++ b/cf/feature/drac.m4
+@@ -0,0 +1,5 @@
++define(`_DRAC_', `')
++
++LOCAL_CONFIG
++Kdrac ifelse(defn(`_ARG_'), `', DATABASE_MAP_TYPE MAIL_SETTINGS_DIR`drac',
++		`_ARG_')
+--- a/cf/m4/proto.m4
++++ b/cf/m4/proto.m4
+@@ -2282,6 +2282,13 @@ RIPv6:0:0:0:0:0:0:0:1	$@ RELAY		originat
+ dnl if compiled with IPV6_FULL=0
+ RIPv6:::1		$@ RELAY		originated locally
+ R$=R $*			$@ RELAY		relayable IP address
++ifdef(`_DRAC_', `dnl
++R$*			$: <> $(drac $1 $: <?> $1 $)
++R<> <?> $+		$: $1
++R<> $+			$@ RELAY		authenticated IP address
++RIPv6:$*		$: <> $(drac $1 $: <?> IPv6:$1 $)
++R<> <?> $+		$: $1
++R<> $+			$@ RELAY		authenticated IP address',`dnl')
+ ifdef(`_ACCESS_TABLE_', `dnl
+ R$*			$: $>A <$1> <?> <+ Connect> <$1>
+ R<RELAY> $*		$@ RELAY		relayable IP address

@@ -1,0 +1,233 @@
+Source: sendmail
+Priority: optional
+Section: mail
+Maintainer: Debian QA Group <packages@qa.debian.org>
+Build-Depends-Indep:
+ groff,
+ bsdmainutils,
+Build-Depends:
+ debhelper-compat (= 13),
+ make (>> 3.79.1-14),
+ m4,
+ linux-libc-dev (>= 2.6.21-3) [linux-any],
+ pkg-config,
+ , libdb-dev, libnsl-dev, libldap2-dev, libwrap0-dev, liblockfile-dev, libsasl2-dev, libssl-dev
+Build-Conflicts:
+ libbind-dev,
+ bind-dev,
+ fakeroot (<< 0.4.5),
+Rules-Requires-Root: binary-targets
+Standards-Version: 4.6.1
+Homepage: http://www.sendmail.org
+Vcs-Browser: https://salsa.debian.org/debian/sendmail
+Vcs-Git: https://salsa.debian.org/debian/sendmail.git
+
+Package: sendmail-bin
+Architecture: any
+Replaces: mail-transport-agent
+Provides: mail-transport-agent
+Conflicts: mail-transport-agent
+Pre-Depends:
+ debconf,
+ ${misc:Pre-Depends}
+Depends:
+ sendmail-base (= ${source:Version}),
+ sendmail-cf (= ${source:Version}),
+ procps,
+ lsb-base (>= 3.0-6),
+ ,
+ ${shlibs:Depends},
+ ${perl:Depends},
+ ${misc:Depends}
+Recommends:
+ ,
+Suggests:
+ sendmail-doc,
+ , sasl2-bin, libsasl2-modules, openssl,
+Description: powerful, efficient, and scalable Mail Transport Agent
+ Sendmail is an alternative Mail Transport Agent (MTA) for Debian.
+ It is suitable for handling sophisticated mail configurations,
+ although this means that its configuration can also be complex.
+ .
+ Fortunately, simple things can be done easily, and complex things
+ are possible, even if not easily understood ;)  Sendmail is the *ONLY*
+ MTA with a Turing complete language to control *ALL* aspects of delivery!
+ .
+ Sendmail provides Security and SPAM/UCE/UBE protection via several means.
+ .
+ Sendmail includes *no* Mail User Agents (MUA), you'll have to
+ pick from the plethora of available MUAs (mutt, vm, etc.)
+ .
+ This package supports REGEX, DB, NIS, NIS+, LDAP, DNS maps,
+ and has enabled TCPWrappers, IPv6, LockFile, SMTP AUTH(SASL), STARTTLS(SSL).
+
+Package: rmail
+Architecture: any
+Conflicts:
+ postfix,
+ exim,
+ exim-tls,
+ exim4,
+ exim4-daemon-custom,
+ exim4-daemon-heavy,
+ exim4-daemon-light,
+ courier-mta,
+ smail,
+ zmailer,
+ masqmail,
+Depends:
+ sendmail-bin | mail-transport-agent,
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: MTA->UUCP remote mail handler
+ Rmail handles mail received via uucp and passes it to the local
+ sendmail (or workalike).
+ .
+ This version comes from the sendmail source package and the only
+ change is the call to sendmail (from -obq to -obi).
+
+Package: sensible-mda
+Architecture: any
+Depends:
+ sendmail-bin | mail-transport-agent,
+ procmail | maildrop | deliver,
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: Mail Delivery Agent wrapper
+ Sensible-mda is a Debian addition in the sendmail package and has been
+ split out in hopes that it might be useful for other MTA packages.
+ .
+ Sensible-mda is called by the MTA, and will in turn call whichever of
+ the following MDAs that it finds (in this order):
+ procmail, maildrop, deliver, mail.local
+
+Package: libmilter1.0.1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends:
+ ${misc:Pre-Depends}
+Depends:
+ ${shlibs:Depends},
+ ${misc:Depends}
+Description: Sendmail Mail Filter API (Milter)
+ The Sendmail Mail Filter API (Milter) is designed to allow third-party
+ programs access to mail messages as they are being processed in order
+ to filter meta-information(headers) and content.
+ .
+ The Debian Sendmail package is built to support libmilter.
+ .
+ This package contains libmilter.so
+
+Package: libmilter-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends:
+ libmilter1.0.1 (= ${binary:Version}),
+ ${misc:Depends}
+Suggests:
+ sendmail-doc,
+Description: Sendmail Mail Filter API (Milter) (development files)
+ The Sendmail Mail Filter API (Milter) is designed to allow third-party
+ programs access to mail messages as they are being processed in order
+ to filter meta-information (headers) and content.
+ .
+ The Debian Sendmail package is built to support libmilter.
+ .
+ This is the libmilter static library and include files for development.
+ .
+ The documentation on building a Milter is in the sendmail-doc package.
+
+Package: sendmail-doc
+Section: doc
+Architecture: all
+Multi-Arch: foreign
+Depends:
+ ${misc:Depends}
+Description: powerful, efficient, and scalable Mail Transport Agent (documentation)
+ Sendmail is an alternative Mail Transport Agent (MTA) for
+ Debian. It is suitable for handling sophisticated mail
+ configurations, although this means that its configuration
+ can also be complex.
+ .
+ Don't try anything fancy in sendmail without using this for guidance.
+ .
+ Because of the complexity, you may find yourself wanting to peruse
+ the documentation files included herein.  The main files are:
+   cf.README.gz    -- A reference for all things in sendmail.{mc,cf}
+   op.{ps,txt}.gz  -- The care and feeding of Sendmail.
+   faq.txt.gz      -- Sendmail FAQ, current as of the package date.
+ .
+ Other files include the references for smrsh and libmilter.
+
+Package: sendmail
+Architecture: all
+Depends:
+ sendmail-base,
+ sendmail-bin,
+ sendmail-cf,
+ sensible-mda,
+ ${misc:Depends}
+Suggests:
+ sendmail-doc,
+ rmail,
+Description: powerful, efficient, and scalable Mail Transport Agent (metapackage)
+ Sendmail is an alternative Mail Transport Agent (MTA) for Debian.
+ It is suitable for handling sophisticated mail configurations,
+ although this means that its configuration can also be complex.
+ .
+ Fortunately, simple things can be done easily, and complex things
+ are possible, even if not easily understood ;)  Sendmail is the *ONLY*
+ MTA with a Turing complete language to control *ALL* aspects of delivery!
+ .
+ Sendmail provides Security and SPAM/UCE/UBE protection via several means.
+ .
+ Sendmail includes *no* Mail User Agents (MUA), you'll have to
+ pick from the plethora of available MUAs (mutt, vm, etc.)
+ .
+ This package supports REGEX, DB, NIS, NIS+, LDAP, DNS maps,
+ and has enabled TCPWrappers, IPv6, LockFile, SMTP AUTH(SASL), STARTTLS(SSL).
+ .
+ This package is to make installation/upgrading easier (Do NOT delete it)
+
+Package: sendmail-base
+Architecture: all
+Depends:
+ m4,
+ make,
+ adduser,
+ netbase,
+ lockfile-progs,
+ ${perl:Depends},
+ ${misc:Depends}
+Suggests:
+ sendmail-doc,
+ ca-certificates,
+ logcheck,
+ logrotate,
+ resolvconf,
+Description: powerful, efficient, and scalable Mail Transport Agent (arch independent files)
+ Sendmail is an alternative Mail Transport Agent (MTA) for
+ Debian. It is suitable for handling sophisticated mail
+ configurations, although this means that its configuration
+ can also be complex.
+ .
+ This package contains the base, architecture independent, portions
+ of the sendmail packages.
+
+Package: sendmail-cf
+Architecture: all
+Depends:
+ m4,
+ ${misc:Depends}
+Suggests:
+ sendmail-doc,
+Description: powerful, efficient, and scalable Mail Transport Agent (config macros)
+ Sendmail is an alternative Mail Transport Agent (MTA) for
+ Debian. It is suitable for handling sophisticated mail
+ configurations, although this means that its configuration
+ can also be complex.
+ .
+ This package contains the .m4 (configuration files) for the
+ sendmail packages.

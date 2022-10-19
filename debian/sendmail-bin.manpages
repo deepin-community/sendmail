@@ -1,0 +1,11 @@
+usr/share/man/man1/mailq.sendmail.1
+usr/share/man/man1/vacation.sendmail.1
+usr/share/man/man5/aliases.sendmail.5
+usr/share/man/man8/editmap.8
+usr/share/man/man8/mail.local.8
+usr/share/man/man8/mailstats.8
+usr/share/man/man8/makemap.8
+usr/share/man/man8/newaliases.sendmail.8
+usr/share/man/man8/praliases.8
+usr/share/man/man8/sendmail.sendmail.8
+usr/share/man/man8/smrsh.8

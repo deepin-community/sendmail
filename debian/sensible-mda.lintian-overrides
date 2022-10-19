@@ -1,0 +1,2 @@
+elevated-privileges usr/sbin/sensible-mda 4755 root/root
+mail-transport-agent-dependency-does-not-specify-default-mta

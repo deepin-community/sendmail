@@ -1,0 +1,34 @@
+Author: Andreas Beckmann <anbe@debian.org>
+Description: support building a shared libmilter
+
+--- a/libmilter/Makefile.m4
++++ b/libmilter/Makefile.m4
+@@ -29,6 +29,28 @@ POPDIVERT
+ 
+ 
+ divert(bldTARGETS_SECTION)
++sm_libmilter_version = conf_libmilter_SOVERSION
++
++libmilter.a: libmilter.so.${sm_libmilter_version}
++libmilter.so.${sm_libmilter_version}: ${BEFORE} ${libmilterOBJS}
++	${CC} -shared -pthread \
++		-o libmilter.so.${sm_libmilter_version} \
++		-fPIC ${CFLAGS} \
++		-Wl,-soname,libmilter.so.${sm_libmilter_version} \
++		$(filter-out -fpie,${LDFLAGS}) \
++		${libmilterOBJS}
++	${LN} ${LNOPTS} libmilter.so.${sm_libmilter_version} libmilter.so
++
++install-libmilter: install-libmilter-shared
++install-libmilter-shared: libmilter.so.${sm_libmilter_version}
++	${INSTALL} -d ${DESTDIR}${LIBDIR}
++	${INSTALL} -c -o ${LIBOWN} -g ${LIBGRP} -m ${LIBMODE} libmilter.so.${sm_libmilter_version} ${DESTDIR}${LIBDIR}
++	${LN} ${LNOPTS} libmilter.so.${sm_libmilter_version} ${DESTDIR}${LIBDIR}/libmilter.so
++
++libmilter-clean: libmilter-clean-shared
++libmilter-clean-shared:
++	rm -f libmilter.so libmilter.so.${sm_libmilter_version}
++
+ # Install the API header files
+ MFAPI=	${SRCDIR}/inc`'lude/libmilter/mfapi.h
+ MFDEF=	${SRCDIR}/inc`'lude/libmilter/mfdef.h

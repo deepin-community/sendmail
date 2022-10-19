@@ -1,0 +1,57 @@
+#!/bin/sh
+set -e;
+
+PACKAGE=sendmail-base;
+
+if [ "$1" = "remove" ]; then
+        if which update-inetd > /dev/null; then
+            update-inetd --remove "^smtp";
+            update-inetd --remove "^smtps";
+            update-inetd --remove "^submission";
+            fi;
+fi
+
+if [ "$1" = "purge" ]; then
+		# Currently, dh_installdebconf doesn't do db_stop... ensure it is done!
+		if [ "$1" = "purge" ] && [ -e /usr/share/debconf/confmodule ]; then
+			# Source debconf library.
+			. /usr/share/debconf/confmodule;
+			# Make sure we're done
+			#db_stop;
+			# Remove my changes to the db.
+			db_purge;
+			fi;
+
+		# Remove user/group smmsp
+		if which deluser > /dev/null; then
+			deluser --quiet smmta || true;
+			deluser --quiet smmsp || true;
+			fi;
+		userdel  smmta 2>/dev/null || true;
+		groupdel smmta 2>/dev/null || true;
+		userdel  smmsp 2>/dev/null || true;
+		groupdel smmsp 2>/dev/null || true;
+
+		# Purge those files installed in other package directories
+        rm -f   @prefix@/lib/sasl/Sendmail.conf
+        rm -f   @sysconfdir@/certs/sendmail.pem;
+        # Can't touch these as they may be included in slapd.conf
+        #rm -rf @sysconfdir@/ldap/schema/sendmail.schema;
+        #rm -rf @sysconfdir@/openldap/sendmail.schema;
+        #rm -rf @sysconfdir@/umich-ldap/sendmail.schema;
+        # Purge psuedo conffiles (managed by sendmail)
+        rm -f   @sysconfdir@/mail/sendmail.conf;
+        # Purge sendmail configuration files
+        rm -f   @sysconfdir@/mail/sendmail.mc \
+            @sysconfdir@/mail/submit.mc \
+            @sysconfdir@/mail/m4/dialup.m4 \
+            @sysconfdir@/mail/m4/provider.m4 \
+            @sysconfdir@/mail/local-host-names \
+            @sysconfdir@/mail/relay-domains \
+            @sysconfdir@/mail/trusted-users \
+            @sysconfdir@/mail/default-auth-info \
+            @sysconfdir@/mail/access \
+            ;
+fi
+
+#DEBHELPER#

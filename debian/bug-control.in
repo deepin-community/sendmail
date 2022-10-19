@@ -1,0 +1,1 @@
+report-with: sensible-mda rmail libmilter@sm_libmilter_version@ sendmail sendmail-bin

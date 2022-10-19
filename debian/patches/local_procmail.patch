@@ -1,0 +1,13 @@
+Description: Remove -Y from procmail arguments
+
+--- a/cf/feature/local_procmail.m4
++++ b/cf/feature/local_procmail.m4
+@@ -27,7 +27,7 @@ define(`LOCAL_MAILER_PATH',
+ 			`/usr/local/bin/procmail'),
+ 		_ARG_))
+ define(`LOCAL_MAILER_ARGS',
+-	ifelse(len(X`'_ARG2_), `1', `procmail -Y -a $h -d $u', _ARG2_))
++	ifelse(len(X`'_ARG2_), `1', `procmail -a $h -d $u', _ARG2_))
+ define(`LOCAL_MAILER_FLAGS',
+ 	ifelse(len(X`'_ARG3_), `1', `SPfhn9', _ARG3_))
+ dnl local_procmail conflicts with local_lmtp but the latter might be

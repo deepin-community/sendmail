@@ -1,0 +1,4 @@
+usr/include/libmilter/*.h
+usr/lib/*/*.a
+usr/lib/*/libmilter.so
+usr/lib/*/pkgconfig/milter.pc

@@ -1,0 +1,24 @@
+#!/bin/sh
+set -e;
+
+# do we have debconf?
+if [ -f /usr/share/debconf/confmodule ]; then
+	DEBCONF=true;
+	. /usr/share/debconf/confmodule;
+else
+	DEBCONF='';
+	fi;
+
+if [ "$1" = "upgrade" ]; then
+		# Prevent cronjob from running during upgrade...
+		if [ -f /etc/cron.d/sendmail ]; then
+			echo "#preinst" > @sysconfdir@/cron.d/sendmail;
+			fi;
+
+	if dpkg --compare-versions "$2" lt-nl "8.15.2-19" ; then
+		# stop sendmail before binaries get moved from /usr/lib/sm.bin/ to /usr/libexec/sendmail/
+		invoke-rc.d sendmail stop
+	fi
+fi
+
+#DEBHELPER#

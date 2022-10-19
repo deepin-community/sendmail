@@ -1,0 +1,19 @@
+duplicate-updaterc.d-calls-in-postinst sendmail
+elevated-privileges usr/libexec/sendmail/sendmail 2755 root/mail
+elevated-privileges usr/libexec/sendmail/mailstats 2755 root/mail
+
+# part of the sendmail-mta alternative
+spare-manual-page usr/share/man/man1/mailq.sendmail.1.gz
+spare-manual-page usr/share/man/man8/newaliases.sendmail.8.gz
+spare-manual-page usr/share/man/man8/sendmail.sendmail.8.gz
+
+# binary in /usr/libexec/sendmail
+spare-manual-page usr/share/man/man1/vacation.sendmail.1.gz
+spare-manual-page usr/share/man/man8/mail.local.8.gz
+spare-manual-page usr/share/man/man8/smrsh.8.gz
+
+# this refers to HP UX and Solaris
+FSSTND-dir-in-manual-page usr/share/man/man8/smrsh.8.gz:93 /var/adm/
+
+# unreachable legacy code
+read-in-maintainer-script [postinst:*]

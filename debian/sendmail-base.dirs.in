@@ -1,0 +1,5 @@
+.@sysconfdir@/mail/m4
+.@sysconfdir@/mail/peers
+.@sysconfdir@/mail/smrsh
+.@sysconfdir@/mail/sasl
+.@sysconfdir@/mail/tls

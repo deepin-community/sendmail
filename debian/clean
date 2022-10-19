@@ -1,0 +1,13 @@
+debian/aclocal.m4
+debian/build/compile
+debian/build/config.guess
+debian/build/config.sub
+debian/build/depcomp
+debian/build/install-sh
+debian/build/missing
+debian/configure
+debian/Makefile.in
+debian/cf/Makefile.in
+debian/examples/Makefile.in
+debian/local/Makefile.in
+debian/sensible_mda/Makefile.in

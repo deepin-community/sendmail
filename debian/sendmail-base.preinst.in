@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e;
+
+if [ "$1" = "upgrade" ]; then
+		# Prevent cronjob from running during upgrade...
+		if [ -f @sysconfdir@/cron.d/sendmail ]; then
+			echo "#preinst" > @sysconfdir@/cron.d/sendmail;
+			fi;
+
+		# Move files to new home
+		if [ -d @sysconfdir@/mail/ssl ] && [ ! -e @sysconfdir@/mail/tls ]; then
+			mv -f @sysconfdir@/mail/ssl @sysconfdir@/mail/tls;
+			fi;
+fi
+
+#DEBHELPER#

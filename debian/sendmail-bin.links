@@ -1,0 +1,23 @@
+# Sendmail alias handling...
+# NOTE: whilst smptd is a valid alias for sendmail, we don't create
+# one so that we can co-exists with smtpd (a firewall frontend)
+# NOTE: newscache package also contains ${sbindir}/hoststat
+# NOTE: newalias, purgestat, etc. aren't for the general user..
+#		yeah, yeah, I know... these can be done with -b<flag>!
+usr/sbin/sendmail-mta			usr/sbin/hoststat
+usr/sbin/sendmail-mta			usr/sbin/purgestat
+usr/share/man/man8/sendmail-mta.8.gz	usr/share/man/man8/hoststat.8.gz
+usr/share/man/man8/sendmail-mta.8.gz	usr/share/man/man8/purgestat.8.gz
+
+# Place those removed aliases in ${libexecdir} (mostly for me)
+usr/libexec/sendmail/sendmail		usr/libexec/sendmail/hoststat
+usr/libexec/sendmail/sendmail		usr/libexec/sendmail/mailq
+usr/libexec/sendmail/sendmail		usr/libexec/sendmail/newaliases
+usr/libexec/sendmail/sendmail		usr/libexec/sendmail/purgestat
+usr/libexec/sendmail/sendmail		usr/libexec/sendmail/smtpd
+
+# NOTE: with the MSP/MTA split, we'll provide our own mailstats (keep orig)
+usr/share/sendmail/mailstats		usr/sbin/mailstats
+usr/libexec/sendmail/editmap		usr/sbin/editmap
+usr/libexec/sendmail/makemap		usr/sbin/makemap
+usr/libexec/sendmail/praliases		usr/sbin/praliases

@@ -1,0 +1,9 @@
+etc/mail/helpfile
+usr/libexec/sendmail/editmap
+usr/libexec/sendmail/mail.local
+usr/libexec/sendmail/mailstats
+usr/libexec/sendmail/makemap
+usr/libexec/sendmail/praliases
+usr/libexec/sendmail/sendmail
+usr/libexec/sendmail/smrsh
+usr/libexec/sendmail/vacation.sendmail

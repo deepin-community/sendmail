@@ -1,0 +1,18 @@
+# Attempt to support Kerberos
+#### Patch data follows ####
+--- a/sendmail/conf.c
++++ b/sendmail/conf.c
+@@ -3986,6 +3986,13 @@ void
+ vendor_post_defaults(e)
+ 	ENVELOPE *e;
+ {
++	/*
++	 * Kerberos V support
++	 */
++	sm_setuserenv("KRB5CCNAME", NULL);
++	sm_setuserenv("KRB5_KTNAME", NULL);
++	sm_setuserenv("KRB5_CONFIG", NULL);
++
+ #ifdef __QNX__
+ 	/* Makes sure the SOCK environment variable remains */
+ 	sm_setuserenv("SOCK", NULL);

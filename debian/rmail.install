@@ -1,0 +1,2 @@
+# FHS says that rmail belongs in ${sbindir}
+usr/libexec/sendmail/rmail	usr/sbin/

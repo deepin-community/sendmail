@@ -1,0 +1,9 @@
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  # domain_host variation breaks Rules-Requires-Root: binary-targets
+  # https://salsa.debian.org/salsa-ci-team/pipeline/-/issues/259
+  SALSA_CI_REPROTEST_ARGS: --variations=-domain_host

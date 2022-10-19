@@ -1,0 +1,10 @@
+# these are not manual pages
+maintainer-manual-page debian/changelog.Debian.8.9
+maintainer-manual-page debian/examples/sasl/Sendmail.conf.1
+maintainer-manual-page debian/examples/sasl/Sendmail.conf.2
+maintainer-manual-page debian/examples/sasl/saslpasswd.conf.1
+maintainer-manual-page debian/examples/sasl/saslpasswd.conf.2
+
+# the binaries are Debian additions
+maintainer-manual-page debian/local/sendmailconfig.8
+maintainer-manual-page debian/sensible_mda/sensible-mda.8
